@@ -30,8 +30,9 @@ def processPhenoFile(input_file):
     return caseList, controlList
 
 if __name__ == '__main__':
-    phenotype_file = ''
-    target_directory = os.path.dirname(phenotype_file) + '/'
+    #target_directory = '/lab/rosinante/shared/ADSP/' #directory on rosinante
+    target_directory = '/media/vision/ExtraDrive1/Exome/ADSP/' #my local machine
+    phenotype_file = target_directory + 'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
 
     caseList, controlList = processPhenoFile(phenotype_file)
 
@@ -52,5 +53,5 @@ if __name__ == '__main__':
         else:
             print('Patient neither case nor control')
 
-    print(len(caseList) + len(controlList), ' = 5686')
+    print(str(len(caseList) + len(controlList)) + ' out of 5686')
 
