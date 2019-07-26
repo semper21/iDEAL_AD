@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+'''
+Created on Jul 25, 2019
+
+@author: ywkim
+'''
+import os
+import glob
+
+def processPhenoFile(input_file):
+    excluded = 0
+    caseList = []
+    controlList = []
+    for line in open(input_file):
+        if line[0] == '#' or line[0] == 'd':
+            continue
+        cols = line.strip().split('\t')
+        # print cols
+        subID = cols[1]
+        state = cols[13]
+
+        if state == '0' or state == 0: #Healthy controls
+            controlList.append(subID)
+        elif state == '1' or state == 1: #AD patients
+            caseList.append(subID)
+        else:
+            excluded += 1 #Most likely people misdiagnosed
+
+    print(excluded)
+    return caseList, controlList
+
+if __name__ == '__main__':
+    phenotype_file = ''
+    target_directory = os.path.dirname(phenotype_file) + '/'
+
+    caseList, controlList = processPhenoFile(phenotype_file)
+
+    srcglob = glob.glob(target_directory + 'after_QCfilter_jamie/*.trauma')
+
+    os.mkdir(target_directory + 'Case/')
+    os.mkdir(target_directory + 'Control/')
+
+    for f in range(len(srcglob)):
+        src = srcglob[f]  # each file
+        pt = src.rsplit('/', 1)[1].split('-')[0:3]
+        pt = '-'.join(pt)
+        # print pt
+        if pt in caseList:
+            os.symlink(src, target_directory + 'Case/' + pt)
+        elif pt in controlList:
+            os.symlink(src, target_directory + 'Control/' + pt)
+        else:
+            print('Patient neither case nor control')
+
+    print(len(caseList) + len(controlList), ' = 5686')
+
