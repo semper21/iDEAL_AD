@@ -168,8 +168,8 @@ def getInfo(ptFile, EA_dict, sub_counter, het_counter, homo_counter):
 def output_dict(sub_dict, het_dict, homo_dict, name):
     output_file = target_directory + '216_mutation_count_' + name + '.csv'
     with open(output_file, 'w') as f:
-        writer = csv.writer(f, delimiter='\t')
-        writer.writerow(['Gene', 'Sub', 'Action', 'Count', 'Het_count', 'Homo_count'])
+        writer = csv.writer(f, delimiter=',')
+        writer.writerow(['Gene', 'Sub', 'Action', 'Count', 'Het_count', 'Hom_count', 'Het:Hom'])
         for gene in gene_list:
             try:
                 sub_list = sub_dict[gene].keys()
@@ -189,7 +189,8 @@ def output_dict(sub_dict, het_dict, homo_dict, name):
                     except KeyError: # if the mutation does not exist in homozygous
                         homo_count = 0
 
-                    info = ([gene, sub, action, count, het_count, homo_count])
+                    ratio = str(het_count) + ':' + str(homo_count)
+                    info = ([gene, sub, action, count, het_count, homo_count, ratio])
                     writer.writerow(info)
 
             except KeyError: # if the gene/mutation does not exist
