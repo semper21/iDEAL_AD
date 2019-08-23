@@ -4,20 +4,19 @@ Created on
 @author: ywkim
 """
 
-#TODO Right now the comparison is between 3v3. Need to generalize this code to include 2v4 compariosn as well!
-
 import os
 import csv
+import sys
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from collections import Counter
-import scipy.stats as stats
-from matplotlib import pyplot as plt
-import itertools as it
 
-def getQuality(qualFile, dictQC):
-    for line in open(qualFile):
+# from IPython import embed
+
+
+def get_quality(qual_file):
+    qual_dict = {}
+    for line in open(qual_file):
         if line[0] == '#':
             continue
         cols = line.strip().split('\t')
@@ -32,7 +31,8 @@ def getQuality(qualFile, dictQC):
         mut = (chr, pos, ref, alt)
         substitution = s.join(mut)
 
-        dictQC[substitution] = filt
+        qual_dict[substitution] = filt
+    return qual_dict
 
 
 def getPheno(phenoFile):
@@ -52,17 +52,17 @@ def getPheno(phenoFile):
 
             if state == '0' or state == 0:
                 if APOE == '33':
-                    Risklist.append(subID)  # healthy with risk
-
+                    apoe3_hc.append(subID)
+                if APOE == '34' or APOE =='44':
+                    apoe4_hc.append(subID)  # healthy with risk
 
             elif state == '1' or state == 1:
-                if APOE == '33':  # AD with protection
-                    WTlist.append(subID)
+                if APOE == '33':
+                    apoe3_ad.append(subID)
+                if APOE == '23' or APOE == '22':
+                    apoe2_ad.append(subID)  # AD with protection
             else:
                 pass
-
-    # print WTlist
-    # print Risklist
 
 
 def delNoStr(currList):
@@ -70,31 +70,15 @@ def delNoStr(currList):
     for x in currList:
         try:
             tempList.append(float(x))
-        except(ValueError):  # When There is a string
-            if (x in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']):
+        except ValueError:  # When There is a string
+            if x in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']:
                 tempList.append(1.)
             else:
                 continue
     return tempList
 
 
-def delNoStr_silent(currList):
-    tempList = []
-    for x in currList:
-        try:
-            tempList.append(float(x))
-        except(ValueError):  # When There is a string
-            if (x in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']):
-                tempList.append(1.)
-            elif (x in ['silent', '-', 'no_action', 'no_trace', 'no_gene']):
-                tempList.append(0)
-            else:
-                print(x)
-                continue
-    return tempList
-
-
-def getInfo(ptFile, EA_dict, count, EA_dict_silent, sub_counter):
+def getInfo(ptFile, EA_dict, sub_counter, het_counter, homo_counter):
     for line in open(ptFile):
         if line[0] == '#':
             continue
@@ -106,17 +90,17 @@ def getInfo(ptFile, EA_dict, count, EA_dict_silent, sub_counter):
         gene = cols[4].split(';')[0]
         sub = cols[5]
         action = cols[6]
+        zygosity = cols[7]
 
         if gene == '':
             continue
 
-        # get numbers for RVIS
         s = '-'
         mut = (chr, pos, ref, alt)
         substitutionG = s.join(mut)
 
         try:
-            qual = dictQC[substitutionG]
+            qual = qc_dict[substitutionG]
         except Exception as e:
             qual = 'non-PASS'
 
@@ -133,78 +117,84 @@ def getInfo(ptFile, EA_dict, count, EA_dict_silent, sub_counter):
             continue
 
         # get sumEA
-        if gene in geneList:
-            # if gene == 'JMJD7':
-            #    embed()
-            count[gene] += 1
+        if gene in gene_list:
+            seq = sub + '(' + str(action) + ')'
+
             if gene not in EA_dict:
                 EA_dict[gene] = []
-            if gene not in EA_dict_silent:
-                EA_dict_silent[gene] = []
 
             if action in ['silent', '-', 'no_action', 'no_trace', 'no_gene']:
-                EA_dict_silent[gene].append(0)
-
+                pass
             elif action in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']:
                 EA_dict[gene].append(1.)
-                EA_dict_silent[gene].append(1.)
             else:
                 try:
                     spl_EA = action.strip().split(';')
                     new_spl_EA = delNoStr(spl_EA)
-                    new_spl_EA_silent = delNoStr_silent(spl_EA)
                     if new_spl_EA == []:
                         pass
                     else:
                         average = np.mean(new_spl_EA)
                         EA_dict[gene].append(average / 100.)
 
-                    if new_spl_EA_silent == []:
-                        pass
-                    else:
-                        average = np.mean(new_spl_EA_silent)
-                        EA_dict_silent[gene].append(average / 100.)
                 except AttributeError:
                     EA_dict[gene].append(float(action) / 100.)
-                    EA_dict_silent[gene].append(float(action) / 100.)
 
-            seq = sub + '(' + str(action) + ')'
-            '''
-            try:
-                sub_counter[gene][sub] += 1
-            except KeyError:
-                sub_counter[gene] = Counter()
-                sub_counter[gene][sub] += 1
-            '''
             try:
                 sub_counter[gene][seq] += 1
+
             except KeyError:
                 sub_counter[gene] = Counter()
                 sub_counter[gene][seq] += 1
 
+            if str(zygosity) == '1':
+                try:
+                    het_counter[gene][seq] += 1
+                except KeyError:
+                    het_counter[gene] = Counter()
+                    het_counter[gene][seq] += 1
 
-def getBoxPlot(eacontrol, eacase, gene):
-    EAListControl = list(np.asarray(eacontrol) * 100)
-    EAListCase = list(np.asarray(eacase) * 100)
+            elif str(zygosity) == '2':
+                try:
+                    homo_counter[gene][seq] += 1
+                except KeyError:
+                    homo_counter[gene] = Counter()
+                    homo_counter[gene][seq] += 1
+            else:
+                print('neither hetero-/homozygous')
+                sys.exit()
 
-    avgEAcontrol = np.mean(EAListControl)
-    avgEAcase = np.mean(EAListCase)
 
-    EA = [EAListControl, EAListCase]
+def output_dict(sub_dict, het_dict, homo_dict, name):
+    output_file = target_directory + '216_mutation_count_' + name + '.csv'
+    with open(output_file, 'w') as f:
+        writer = csv.writer(f, delimiter='\t')
+        writer.writerow(['Gene', 'Sub', 'Action', 'Count', 'Het_count', 'Homo_count'])
+        for gene in gene_list:
+            try:
+                sub_list = sub_dict[gene].keys()
+                for sub_info in sub_list:
+                    subs = sub_info.split('(')
+                    sub = subs[0]
+                    action = ''.join(list(subs[1])[:-1])
 
-    rc = {'font.size': 20, 'axes.labelsize': 18, 'legend.fontsize': 16, 'axes.titlesize': 20, 'xtick.labelsize': 16,
-          'ytick.labelsize': 16}
-    sns.set(rc=rc)
-    sns.set_style('whitegrid')
-    ax = sns.violinplot(data=EA, palette='husl')
-    # ax = sns.boxplot(data = EA, palette = 'husl')
-    plt.ylim(0, 100)
-    ax.set_xticklabels(['APOE2-AD', 'APOE4-HC'])
-    plt.text(-0.1, 100, 'mean=' + '%.2f' % avgEAcontrol, fontsize=14)
-    plt.text(0.9, 100, 'mean=' + '%.2f' % avgEAcase, fontsize=14)
-    plt.title(gene)
-    plt.savefig(targetDirc + gene + '_violin.png', dpi=200)
-    plt.clf()
+                    count = sub_dict[gene][sub_info]
+                    try:
+                        het_count = het_dict[gene][sub_info]
+                    except KeyError: # if the mutation does not exist in heterozygous
+                        het_count = 0
+
+                    try:
+                        homo_count = homo_dict[gene][sub_info]
+                    except KeyError: # if the mutation does not exist in homozygous
+                        homo_count = 0
+
+                    info = ([gene, sub, action, count, het_count, homo_count])
+                    writer.writerow(info)
+
+            except KeyError: # if the gene/mutation does not exist
+                continue
+
 
 
 if __name__ == '__main__':
@@ -214,39 +204,46 @@ if __name__ == '__main__':
     phenoFile = '/media/vision/ExtraDrive1/Exome/ADSP/phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
 
     qualFile = '/home/vision/Documents/GermlineProject/ADSP/snvquality_detailed_jamie.csv'
-    dictQC = {}
-    getQuality(qualFile, dictQC)
+    qc_dict = get_quality(qualFile)
 
     print('-----Getting quality DONE-----')
 
-    # Group patients into WT, Risk
-    WTlist = []
-    Risklist = []
+    # Group patients into APOE2-AD, APOE4-HC, APOE3-AD, APOE4-AD
+    apoe2_ad = []
+    apoe4_hc = []
+    apoe3_ad = []
+    apoe3_hc = []
 
     getPheno(phenoFile)
 
-    print(len(WTlist))
-    print(len(Risklist))
-
     print('-----Getting phenotype DONE-----')
 
-    EA_Risk = {}
-    EA_WT = {}
-    count_Risk = Counter()
-    count_WT = Counter()
+    ea_apoe2_ad = {}
+    ea_apoe4_hc = {}
+    ea_apoe3_ad = {}
+    ea_apoe3_hc = {}
 
-    EA_Risk_silent = {}
-    EA_WT_silent = {}
+    sub_apoe2_ad = {}
+    sub_apoe4_hc = {}
+    sub_apoe3_ad = {}
+    sub_apoe3_hc = {}
 
-    targetDirc = '/home/vision/Documents/GermlineProject/ADSP/RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
+    het_count_apoe2_ad = {}
+    het_count_apoe4_hc = {}
+    het_count_apoe3_ad = {}
+    het_count_apoe3_hc = {}
 
-    geneFile = targetDirc + 'iDEAL_genelist.txt'
-    dfGene = pd.read_csv(geneFile, index_col=None)
+    homo_count_apoe2_ad = {}
+    homo_count_apoe4_hc = {}
+    homo_count_apoe3_ad = {}
+    homo_count_apoe3_hc = {}
 
-    geneList = dfGene['Gene'].values.tolist()
+    # target_directory = '/home/vision/Documents/GermlineProject/ADSP/RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
+    target_directory = '/home/vision/Documents/GermlineProject/ADSP/iDEAL_updated_test_2019/'
+    gene_file = target_directory + 'iDEAL_genelist.txt'
+    dfGene = pd.read_csv(gene_file, index_col=None)
 
-    sub_risk = {}
-    sub_WT = {}
+    gene_list = dfGene['Gene'].values.tolist()
 
     print('-----Getting info-----')
 
@@ -256,27 +253,39 @@ if __name__ == '__main__':
     for filename in os.listdir(ControlFolder):
         ptID = filename.split('.')[0]
         ptFile = (os.path.join(ControlFolder, filename))
-        if ptID in Risklist:
-            getInfo(ptFile, EA_Risk, count_Risk, EA_Risk_silent, sub_risk)
+        if ptID in apoe4_hc:
+            getInfo(ptFile, ea_apoe4_hc, sub_apoe4_hc, het_count_apoe4_hc, homo_count_apoe4_hc)
+
+        elif ptID in apoe3_hc:
+            getInfo(ptFile, ea_apoe3_hc, sub_apoe3_hc, het_count_apoe3_hc, homo_count_apoe3_hc)
 
         else:
             pass
         ptCount += 1
-        print(ptCount)
+
     print(ptCount)
 
     for filename in os.listdir(CaseFolder):
         ptID = filename.split('.')[0]
         ptFile = (os.path.join(CaseFolder, filename))
-        if ptID in WTlist:
-            getInfo(ptFile, EA_WT, count_WT, EA_WT_silent, sub_WT)
+        if ptID in apoe2_ad:
+            getInfo(ptFile, ea_apoe2_ad, sub_apoe2_ad, het_count_apoe2_ad, homo_count_apoe2_ad)
+
+        elif ptID in apoe3_ad:
+            getInfo(ptFile, ea_apoe3_ad, sub_apoe3_ad, het_count_apoe3_ad, homo_count_apoe3_ad)
 
         else:
             pass
         ptCount += 1
-        print(ptCount)
 
     print(ptCount)
+
+    output_dict(sub_apoe2_ad, het_count_apoe2_ad, homo_count_apoe2_ad, 'APOE2-AD')
+    output_dict(sub_apoe4_hc, het_count_apoe4_hc, homo_count_apoe4_hc, 'APOE4-HC')
+    output_dict(sub_apoe3_ad, het_count_apoe3_ad, homo_count_apoe3_ad, 'APOE3-AD')
+    output_dict(sub_apoe3_hc, het_count_apoe3_hc, homo_count_apoe3_hc, 'APOE3-HC')
+
+    # TODO This part needs to be re-written at some point
     '''
     outputFile = targetDirc + '216_genebygene_stats.csv'
     with open(outputFile, 'w') as f:
@@ -312,15 +321,4 @@ if __name__ == '__main__':
             info = ([gene, mean_case, med_case, mean_control, med_control, t, w, mwu, n, m])
             writer.writerow(info)
     '''
-
-    dfRisk = pd.DataFrame.from_dict(sub_risk, orient='index')
-    dfRisk = dfRisk.stack()
-    dfRisk.to_csv(targetDirc + '216_mutation_count_APOE3-AD.txt', index=True, header=['Gene, Sub, Count'])
-
-    dfWT = pd.DataFrame.from_dict(sub_WT, orient='index')
-    dfWT = dfWT.stack()
-    dfWT.to_csv(targetDirc + '216_mutation_count_APOE3-HC.txt', index=True, header=['Gene, Sub, Count'])
-
-    # embed()
-
 
