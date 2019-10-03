@@ -9,9 +9,11 @@ import csv
 import sys
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from collections import Counter
+import matplotlib.pyplot as plt
 
-# from IPython import embed
+from IPython import embed
 
 
 def get_quality(qual_file):
@@ -79,6 +81,7 @@ def delNoStr(currList):
 
 
 def getInfo(ptFile, EA_dict, sub_counter, het_counter, homo_counter):
+    pt_dict = {}
     for line in open(ptFile):
         if line[0] == '#':
             continue
@@ -164,6 +167,23 @@ def getInfo(ptFile, EA_dict, sub_counter, het_counter, homo_counter):
                 print('neither hetero-/homozygous')
                 sys.exit()
 
+            if (gene in candidate_genes) and (sub in candidate_variants):
+                try:
+                    pt_dict[gene][sub] = int(zygosity)
+                except KeyError:
+                    pt_dict[gene] = {}
+                    pt_dict[gene][sub] = int(zygosity)
+
+    candidate_ea_list = []
+    for gene in candidate_genes:
+        for var in candidate_variants:
+            try:
+                candidate_ea_list.append(pt_dict[gene][var])
+            except KeyError:
+                candidate_ea_list.append(0)
+
+    return candidate_ea_list
+
 
 def output_dict(sub_dict, het_dict, homo_dict, name):
     output_file = target_directory + '216_mutation_count_' + name + '.csv'
@@ -197,6 +217,24 @@ def output_dict(sub_dict, het_dict, homo_dict, name):
                 continue
 
 
+def make_heatmap(matrix_, pt_list_, label_):
+    sns.set(font_scale=0.5)
+
+    df_matrix = pd.DataFrame(matrix_, index=pt_list_, columns = candidate_variants)
+    df_matrix['All'] = df_matrix.sum(axis=1)
+    df_matrix.sort_values('All', ascending=False, inplace=True)
+    df_matrix = df_matrix[candidate_variants]
+    with sns.axes_style("white"):
+        if label_.startswith('SYTL2_apoe3'):
+            ax = sns.heatmap(df_matrix, cmap='BuPu')
+        else:
+            ax = sns.heatmap(df_matrix, cmap='BuPu', linewidths=.25)
+
+    plt.tight_layout()
+    plt.savefig(target_directory + 'Matrices_heatmap/' + label_ + '.png', dpi=300)
+    plt.clf()
+    plt.close()
+
 
 if __name__ == '__main__':
 
@@ -209,6 +247,7 @@ if __name__ == '__main__':
 
     print('-----Getting quality DONE-----')
 
+    # TODO: There are a lot of repetition - these should be turned into a function!
     # Group patients into APOE2-AD, APOE4-HC, APOE3-AD, APOE4-AD
     apoe2_ad = []
     apoe4_hc = []
@@ -246,45 +285,56 @@ if __name__ == '__main__':
 
     gene_list = dfGene['Gene'].values.tolist()
 
+    candidate_genes = ['SYTL2']
+    candidate_variants = ['D369G', 'A211G', 'M334V', 'T383M']
+
+    matrix_apoe2_ad = np.zeros((len(apoe2_ad), len(candidate_variants)))
+    matrix_apoe4_hc = np.zeros((len(apoe4_hc), len(candidate_variants)))
+    matrix_apoe3_ad = np.zeros((len(apoe3_ad), len(candidate_variants)))
+    matrix_apoe3_hc = np.zeros((len(apoe3_hc), len(candidate_variants)))
+
     print('-----Getting info-----')
 
     errorlog = []
 
-    ptCount = 0
-    for filename in os.listdir(ControlFolder):
-        ptID = filename.split('.')[0]
-        ptFile = (os.path.join(ControlFolder, filename))
-        if ptID in apoe4_hc:
-            getInfo(ptFile, ea_apoe4_hc, sub_apoe4_hc, het_count_apoe4_hc, homo_count_apoe4_hc)
 
-        elif ptID in apoe3_hc:
-            getInfo(ptFile, ea_apoe3_hc, sub_apoe3_hc, het_count_apoe3_hc, homo_count_apoe3_hc)
+    pt_count = 0
+    for idx, pt_id in enumerate(apoe4_hc):
+        pt_file = (os.path.join(ControlFolder, pt_id))
+        ea_list_apoe4_hc = getInfo(pt_file, ea_apoe4_hc, sub_apoe4_hc, het_count_apoe4_hc, homo_count_apoe4_hc)
+        matrix_apoe4_hc[idx] = ea_list_apoe4_hc
+        pt_count += 1
 
-        else:
-            pass
-        ptCount += 1
+    for idx, pt_id in enumerate(apoe3_hc):
+        pt_file = (os.path.join(ControlFolder, pt_id))
+        ea_list_apoe3_hc = getInfo(pt_file, ea_apoe3_hc, sub_apoe3_hc, het_count_apoe3_hc, homo_count_apoe3_hc)
+        matrix_apoe3_hc[idx] = ea_list_apoe3_hc
+        pt_count += 1
 
-    print(ptCount)
+    print(pt_count)
 
-    for filename in os.listdir(CaseFolder):
-        ptID = filename.split('.')[0]
-        ptFile = (os.path.join(CaseFolder, filename))
-        if ptID in apoe2_ad:
-            getInfo(ptFile, ea_apoe2_ad, sub_apoe2_ad, het_count_apoe2_ad, homo_count_apoe2_ad)
+    for idx, pt_id in enumerate(apoe2_ad):
+        pt_file = (os.path.join(CaseFolder, pt_id))
+        ea_list_apoe2_ad = getInfo(pt_file, ea_apoe2_ad, sub_apoe2_ad, het_count_apoe2_ad, homo_count_apoe2_ad)
+        matrix_apoe2_ad[idx] = ea_list_apoe2_ad
+        pt_count += 1
 
-        elif ptID in apoe3_ad:
-            getInfo(ptFile, ea_apoe3_ad, sub_apoe3_ad, het_count_apoe3_ad, homo_count_apoe3_ad)
+    for idx, pt_id in enumerate(apoe3_ad):
+        pt_file = (os.path.join(CaseFolder, pt_id))
+        ea_list_apoe3_ad = getInfo(pt_file, ea_apoe3_ad, sub_apoe3_ad, het_count_apoe3_ad, homo_count_apoe3_ad)
+        matrix_apoe3_ad[idx] = ea_list_apoe3_ad
 
-        else:
-            pass
-        ptCount += 1
-
-    print(ptCount)
+    print(pt_count)
 
     output_dict(sub_apoe2_ad, het_count_apoe2_ad, homo_count_apoe2_ad, 'APOE2-AD')
     output_dict(sub_apoe4_hc, het_count_apoe4_hc, homo_count_apoe4_hc, 'APOE4-HC')
     output_dict(sub_apoe3_ad, het_count_apoe3_ad, homo_count_apoe3_ad, 'APOE3-AD')
     output_dict(sub_apoe3_hc, het_count_apoe3_hc, homo_count_apoe3_hc, 'APOE3-HC')
+    # embed()
+    make_heatmap(matrix_apoe2_ad, apoe2_ad, 'SYTL2_apoe2_ad')
+    make_heatmap(matrix_apoe3_ad, apoe3_ad, 'SYTL2_apoe3_ad')
+    make_heatmap(matrix_apoe3_hc, apoe3_hc, 'SYTL2_apoe3_hc')
+    make_heatmap(matrix_apoe4_hc, apoe4_hc, 'SYTL2_apoe4_hc')
 
     # TODO This part needs to be re-written at some point
     '''
