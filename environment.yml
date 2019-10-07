@@ -55,5 +55,6 @@ dependencies:
   - wheel=0.33.4
   - xz=5.2.4
   - zlib=1.2.11
+  - statsmodels=0.10.1
 prefix: /Users/ywkim/anaconda3/envs/iDEAL_AD
 
