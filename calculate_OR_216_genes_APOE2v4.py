@@ -53,7 +53,6 @@ if __name__ == '__main__':
     df = df.fillna(0)
     df.columns = ['Gene', 'Sub', 'Action', '# APOE2-AD', 'Het APOE2-AD', 'Hom APOE2-AD', 'Het:Hom APOE2-AD',
                   '# APOE4-HC','Het APOE4-HC', 'Hom APOE4-HC',  'Het:Hom APOE4-HC']
-    df.to_csv(dirc + '216_all_mutation_count_APOE3_withEA.csv', sep=',', index=False)
     df.to_csv(dirc + '216_updated/216_all_mutation_count_APOE2v4_withEA.csv', sep=',', index=False)
 
     hc_all = 301
