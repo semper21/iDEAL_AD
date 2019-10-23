@@ -56,5 +56,6 @@ dependencies:
   - xz=5.2.4
   - zlib=1.2.11
   - statsmodels=0.10.1
+  - xlrd-1.2.0
 prefix: /Users/ywkim/anaconda3/envs/iDEAL_AD
 

@@ -1,5 +1,5 @@
-'''
-Created on 
+"""
+Created on Aug 23, 2019
 
 @author: ywkim
 
@@ -8,7 +8,8 @@ Created on
 -Checked that OR does not differ!
 -P-value differs only by little (E-6)
 -Note: CI should not include 1 even if p-value < 0.05
-'''
+"""
+
 import csv
 import numpy as np
 import pandas as pd
