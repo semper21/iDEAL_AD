@@ -1,5 +1,5 @@
 """
-Created on 
+Created on Aug 14, 2019 (this new, 3.6 version)
 
 @author: ywkim
 
@@ -7,6 +7,7 @@ Created on
 
 """
 
+#TODO: need to clean this up (convert to python3)
 
 import os
 import csv
@@ -42,7 +43,7 @@ def getQuality(qualFile, dictQC):
         dictQC[substitution] = filt
 
 def getPheno(phenoFile):
-    for line in file(phenoFile):
+    for line in open(phenoFile):
         if line[0] == '#' or line[0] == 'd':
             continue
         cols = line.strip().split('\t')
@@ -67,8 +68,8 @@ def getPheno(phenoFile):
             else:
                 pass
 
-    #print WTlist
-    #print Risklist
+    #print(WTlist)
+    #print(Risklist)
 
 
 def delNoStr(currList):
@@ -84,7 +85,7 @@ def delNoStr(currList):
     return tempList
 
 def getInfo(ptFile, EA, totalVar, EA_ALL, totalVarALL, geneListALL):
-    for line in file(ptFile):
+    for line in open(ptFile):
         if line[0] == '#':
             continue
         cols = line.strip().split('\t')
@@ -117,7 +118,7 @@ def getInfo(ptFile, EA, totalVar, EA_ALL, totalVarALL, geneListALL):
         elif qual == 'PASS':
             pass
         else:
-            print 'ERROR'
+            print('ERROR')
 
         if sub == '-': #no indels
             continue
@@ -194,7 +195,6 @@ def save2h5py(anyDict, name):
             #sys.exit()
 
 def calcRVEA_OneFit(geneList, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, totalVarWT, sumEA_WT,  name):
-
     X_list = []
     Y_list = []
     for gene in geneList:
@@ -218,7 +218,7 @@ def calcRVEA_OneFit(geneList, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, 
     a = linreg.coef_[0][0]
     c = linreg.intercept_[0]
 
-    print 'a=',a, 'c=',c
+    print('a=',a, 'c=',c)
 
     RVEA_Risk = {}
     X_Risk = []
@@ -312,7 +312,7 @@ def calcRofRVEA(geneList, RVEA_Risk, RVEA_WT, RofRVEA, name): #this is for only 
         a = linreg.coef_[0][0]
         c = linreg.intercept_[0]
 
-        print 'a = ', a, 'c = ', c
+        print('a = ', a, 'c = ', c)
         #ax+by+c=0 (b=-1)
         #r = ax-y+c/sqrt(a^2+b^2)
         for gene in geneList:
@@ -329,7 +329,7 @@ def calcRofRVEA(geneList, RVEA_Risk, RVEA_WT, RofRVEA, name): #this is for only 
                     RofRVEA[gene] = []
                 RofRVEA[gene].append(r)
             else:
-                print name
+                print(name)
             RVIS.append(r)
             info = ([gene, x, y, r])
             writer.writerow(info)
@@ -361,8 +361,7 @@ if __name__ == '__main__':
     dictQC = {}
     getQuality(qualFile, dictQC)
 
-    print
-    '-----Getting quality DONE-----'
+    print('-----Getting quality DONE-----')
 
     # Group patients into WT, Risk
     WTlist = []
@@ -370,13 +369,10 @@ if __name__ == '__main__':
 
     getPheno(phenoFile)
 
-    print
-    len(WTlist)
-    print
-    len(Risklist)
+    print(len(WTlist))
+    print(len(Risklist))
 
-    print
-    '-----Getting phenotype DONE-----'
+    print('-----Getting phenotype DONE-----')
 
     geneListTotal = []
 
@@ -391,8 +387,7 @@ if __name__ == '__main__':
 
     targetDirc = '/home/vision/Documents/GermlineProject/ADSP/RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
 
-    print
-    '-----Getting info-----'
+    print('-----Getting info-----')
 
     errorlog = []
 
@@ -412,12 +407,10 @@ if __name__ == '__main__':
             else:
                 status = 'Healthy_Something_else'
             ptCount += 1
-            print
-            ptCount
+            print(ptCount)
             info = ([ptID, status])
             writer.writerow(info)
-        print
-        ptCount
+        print(ptCount)
 
         for filename in os.listdir(CaseFolder):
             ptID = filename.split('.')[0]
@@ -430,13 +423,11 @@ if __name__ == '__main__':
                 status = 'Case_Something_else'
 
             ptCount += 1
-            print
-            ptCount
+            print(ptCount)
             info = ([ptID, status])
             writer.writerow(info)
 
-        print
-        ptCount
+        print(ptCount)
 
     ##h5py
     sumEA_Risk = getSumEA(EA_Risk)
@@ -450,8 +441,7 @@ if __name__ == '__main__':
     save2h5py(sumEA_WT, 'sumEA_WT')
     save2h5py(sumEA_ALL, 'sumEA_ALL')
 
-    print
-    '-----Initializing RVEA calculation-----'
+    print('-----Initializing RVEA calculation-----')
     # calculate RVEA of AA and GG using same fitted line (of all GG, AA, GA people)
     normRVEA_Risk, normRVEA_WT = calcRVEA_OneFit(geneListTotal, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk,
                                                  totalVarWT, sumEA_WT, '_real')
@@ -463,8 +453,7 @@ if __name__ == '__main__':
 
     save2h5py(RofRVEA, 'RofRVEA')
 
-    print
-    '-----Initializing random RVEA calculation-----'
+    print('-----Initializing random RVEA calculation-----')
     ################
     #    RANDOM    #
     ################
@@ -522,8 +511,7 @@ if __name__ == '__main__':
             elif pt in WTlist:
                 ptFile = (os.path.join(CaseFolder, pt))
             else:
-                print
-                'error'
+                print('error')
                 sys.exit()
 
             if pt in randAAlist:
@@ -538,8 +526,7 @@ if __name__ == '__main__':
                 status = 'GA'
             perc += 1
             if perc == 1000:
-                print
-                '1000 random people done'
+                print('1000 random people done')
 
         RsumEA_AA = getSumEA(RandEA_AA)
         RsumEA_GG = getSumEA(RandEA_GG)
@@ -553,8 +540,7 @@ if __name__ == '__main__':
         RVISofRVIS_random, RVIS_list_random = calcRofRVEA(RgeneListTotal, normRVIS_AA_random, normRVIS_GG_random,
                                                           RVISofRVIS_random, '_random')
 
-        print
-        'random # = ', ptidx
+        print('random # = ', ptidx)
 
     save2h5py(RVISofRVIS_random, 'RofRVEA_random')
 
@@ -581,7 +567,6 @@ if __name__ == '__main__':
             except KeyError:
                 noInfo += 1
 
-    print
-    'number of genes with no z-score = ', noInfo
+    print('number of genes with no z-score = ', noInfo)
 
 

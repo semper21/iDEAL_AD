@@ -2,6 +2,11 @@
 Created on Aug 23, 2019
 
 @author: ywkim
+
+10/24/29
+-Output file is more cleaned up
+-Action: average (if more than one per variant)
+-CI format: x.xx
 """
 
 import csv
@@ -47,6 +52,9 @@ def calculate_or_with_ci(a, b, c, d):
     p_value = or_table.oddsratio_pvalue()
     confidence_interval = list(or_table.oddsratio_confint())
 
+    '''used for cleaned-up version'''
+    confidence_interval = [float(f'{x:.2f}') for x in confidence_interval]
+
     return odds_ratio, p_value, confidence_interval
 
 
@@ -54,12 +62,12 @@ if __name__ == '__main__':
     dirc = '/Users/ywkim/Desktop/Projects/GermlineProject/ADSP/RVEA/new2018/' \
            'RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
 
-    #genes = ['LRRC17', 'TRAF3IP', 'UGT3A1', 'ARHGAP44', 'PRKAG3', 'THG1L', 'GPR37', 'ATP6V0E2', 'C1orf185']
-
+    genes = ['LRRC17', 'TRAF3IP', 'UGT3A1', 'ARHGAP44', 'PRKAG3', 'THG1L', 'GPR37', 'ATP6V0E2', 'C1orf185']
+    '''
     fly_hits_file = dirc + 'hit_genes.txt'
     df_hits = pd.read_csv(fly_hits_file)
     genes = df_hits['Gene'].values.tolist()
-
+    '''
     caseFile = dirc + '216_updated/216_mutation_count_APOE3-AD.csv'
     controlFile = dirc + '216_updated/216_mutation_count_APOE3-HC.csv'
 
@@ -73,12 +81,13 @@ if __name__ == '__main__':
     df.columns = ['Gene', 'Sub', 'Action', '# APOE3-AD', 'Het APOE3-AD', 'Hom APOE3-AD', 'Het:Hom APOE3-AD',
                   '# APOE3-HC', 'Het APOE3-HC', 'Hom APOE3-HC', 'Het:Hom APOE3-HC']
 
-    df.to_csv(dirc + '216_updated/216_all_mutation_count_APOE3_withEA.csv', sep=',', index=False)
+    #df.to_csv(dirc + '216_updated/216_all_mutation_count_APOE3_withEA.csv', sep=',', index=False)
 
     hc_all = 1657   # only 3/3 HC
     ad_all = 1346   # only 3/3 AD
 
-    outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE3_withEA_OR_CI.csv'
+    outputFile = dirc + '216_updated/9genes_mutation_count_APOE3_withEA_OR_CI_clean.csv'
+    #outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE3_withEA_OR_CI_clean.csv'
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter=',')
         writer.writerow(['Gene', 'Sub', 'Action', 'Het:Hom Case', 'Het:Hom Control', 'Het_OR', 'Het_CI', 'Het_p-value',
@@ -126,6 +135,14 @@ if __name__ == '__main__':
                         ratio_ad = '0:0'
                     if ratio_hc == 0:
                         ratio_hc = '0:0'
-                    info = [gene, sub, action, ratio_ad, ratio_hc, het_or, het_ci, het_p, hom_or, hom_ci, hom_p,
+
+                    '''used for cleaned-up version'''
+                    actions = action.split(';')
+                    if len(actions) == 1:
+                        mean_action = action
+                    else:
+                        mean_action = np.mean([float(x) for x in actions])
+
+                    info = [gene, sub, mean_action, ratio_ad, ratio_hc, het_or, het_ci, het_p, hom_or, hom_ci, hom_p,
                             ad, hc, odds_ratio, ci, p_value]
                     writer.writerow(info)

@@ -8,6 +8,12 @@ Created on Aug 23, 2019
 -Checked that OR does not differ!
 -P-value differs only by little (E-6)
 -Note: CI should not include 1 even if p-value < 0.05
+
+10/24/29
+-Output file is more cleaned up
+-Action: average (if more than one per variant)
+-CI format: x.xx
+
 """
 
 import csv
@@ -32,6 +38,9 @@ def calculate_or_with_ci(a, b, c, d):
     odds_ratio = or_table.oddsratio
     p_value = or_table.oddsratio_pvalue()
     confidence_interval = list(or_table.oddsratio_confint())
+
+    '''used for cleaned-up version'''
+    confidence_interval = [float(f'{x:.2f}') for x in confidence_interval]
 
     return odds_ratio, p_value, confidence_interval
 
@@ -60,7 +69,7 @@ if __name__ == '__main__':
     ad_all = 179
 
     # only 69 genes
-    outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE2v4_withEA_OR_CI.csv'
+    outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE2v4_withEA_OR_CI_clean.csv'
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter=',')
         writer.writerow(['Gene', 'Sub', 'Action', 'Het:Hom Case', 'Het:Hom Control', 'Het_OR', 'Het_CI', 'Het_p-value',
@@ -108,6 +117,14 @@ if __name__ == '__main__':
                         ratio_ad = '0:0'
                     if ratio_hc == 0:
                         ratio_hc = '0:0'
-                    info = [gene, sub, action, ratio_ad, ratio_hc, het_or, het_ci, het_p, hom_or, hom_ci, hom_p,
+
+                    '''used for cleaned-up version'''
+                    actions = action.split(';')
+                    if len(actions) == 1:
+                        mean_action = action
+                    else:
+                        mean_action = np.mean([float(x) for x in actions])
+
+                    info = [gene, sub, mean_action, ratio_ad, ratio_hc, het_or, het_ci, het_p, hom_or, hom_ci, hom_p,
                             ad, hc, odds_ratio, ci, p_value]
                     writer.writerow(info)
