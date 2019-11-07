@@ -74,6 +74,8 @@ if __name__ == '__main__':
     df_network['protein1'] = df_network['protein1'].map(map_dict)
     df_network['protein2'] = df_network['protein2'].map(map_dict)
 
+    """Randomization"""
+    '''
     all_gene_file = dirc.rsplit('/', 2)[0] + '/ControlledZscores'
     df_all_genes = pd.read_csv(all_gene_file, sep='\t')
     all_genes = df_all_genes['Gene'].values.tolist()
@@ -84,12 +86,18 @@ if __name__ == '__main__':
         random_draw = sample(all_genes, int(n))
         df[i] = random_draw
 
-    df.to_csv(dirc + '1000x_random_genes_to_get_edges2.csv', sep=',', index=False)
+    df.to_csv(dirc + '1000x_random_genes_to_get_edges_bait5.csv', sep=',', index=False)
+    '''
 
+    """For when we're using pre-selected random genes"""
+    df = pd.read_csv(dirc + '1000x_random_genes_to_get_edges_Bait1-4.csv', sep=',')
+    #embed()
 
     """GWAS genes"""
-    gene_types = ['Bait1', 'Bait2', 'Bait3', 'Bait4']
-    confidences = [400, 450, 700, 400]
+    # gene_types = ['Bait1', 'Bait2', 'Bait3', 'Bait4']
+    #confidences = [400, 450, 700, 400]
+    gene_types = ['Bait5']
+    confidences = [700]
     truth_file = dirc.rsplit('/',2)[0] + '/216_updated/Bait_GWAS_genes.xlsx'
     for idx, gene_type in enumerate(gene_types):
         df_gwas = pd.read_excel(truth_file, sheet_name=gene_type)
@@ -101,12 +109,12 @@ if __name__ == '__main__':
         for i in range(1000):
             if i % 100 == 0:
                 print(i)
-            random_genes = df[i].values.tolist()
+            random_genes = df[str(i)].values.tolist()
             random_edge_number = count_edges(random_genes, gwas_genes, df_network, confidence, 'random')
             random_edges_list.append(random_edge_number)
 
         df_edges = pd.DataFrame(random_edges_list, columns = ['RandomEdges'])
-        df_edges.to_csv(dirc + gene_type + '_random_edges_distribution.tsv', sep='\t', index=False)
+        df_edges.to_csv(dirc + gene_type + '_random_edges_distribution_bait5.tsv', sep='\t', index=False)
 
         mean = np.mean(random_edges_list)
         std = np.std(random_edges_list)

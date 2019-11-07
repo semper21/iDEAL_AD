@@ -49,9 +49,15 @@ if __name__ == '__main__':
     dirc = '/Users/ywkim/Desktop/Projects/GermlineProject/ADSP/RVEA/new2018/' \
            'RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
 
+    # only 69 genes
     fly_hits_file = dirc + 'hit_genes.txt'
     df_hits = pd.read_csv(fly_hits_file)
     genes = df_hits['Gene'].values.tolist()
+
+    # all 216 genes
+    ideal_file = dirc + 'iDEAL_genelist.txt'
+    df_genes = pd.read_csv(ideal_file)
+    genes = df_genes['Gene'].values.tolist()
 
     case_file = dirc + '216_updated/216_mutation_count_APOE2-AD.csv'
     control_file = dirc + '216_updated/216_mutation_count_APOE4-HC.csv'
@@ -63,13 +69,12 @@ if __name__ == '__main__':
     df = df.fillna(0)
     df.columns = ['Gene', 'Sub', 'Action', '# APOE2-AD', 'Het APOE2-AD', 'Hom APOE2-AD', 'Het:Hom APOE2-AD',
                   '# APOE4-HC','Het APOE4-HC', 'Hom APOE4-HC',  'Het:Hom APOE4-HC']
-    df.to_csv(dirc + '216_updated/216_all_mutation_count_APOE2v4_withEA.csv', sep=',', index=False)
+    # df.to_csv(dirc + '216_updated/216_all_mutation_count_APOE2v4_withEA.csv', sep=',', index=False)
 
     hc_all = 301
     ad_all = 179
 
-    # only 69 genes
-    outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE2v4_withEA_OR_CI_clean.csv'
+    outputFile = dirc + '216_updated/216hits_all_mutation_count_APOE2v4_withEA_OR_CI_clean.csv'
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter=',')
         writer.writerow(['Gene', 'Sub', 'Action', 'Het:Hom Case', 'Het:Hom Control', 'Het_OR', 'Het_CI', 'Het_p-value',
@@ -90,7 +95,7 @@ if __name__ == '__main__':
                 ratio_hc = row[10]
                 diff = int(ad) - int(hc)
 
-                if action in ['silent', 'no_action']:
+                if action in ['silent', 'no_action', 'no_gene', 'no_trace']:
                     continue
 
                 else:
@@ -123,7 +128,13 @@ if __name__ == '__main__':
                     if len(actions) == 1:
                         mean_action = action
                     else:
-                        mean_action = np.mean([float(x) for x in actions])
+                        temp_list = []
+                        for x in action:
+                            try:
+                                temp_list.append(float(x))
+                            except ValueError: # this is for when Action contains 'no_gene'
+                                pass
+                        mean_action = np.mean(temp_list)
 
                     info = [gene, sub, mean_action, ratio_ad, ratio_hc, het_or, het_ci, het_p, hom_or, hom_ci, hom_p,
                             ad, hc, odds_ratio, ci, p_value]

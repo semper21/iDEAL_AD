@@ -7,11 +7,10 @@ Created on Aug 14, 2019 (this new, 3.6 version)
 
 """
 
-#TODO: need to clean this up (convert to python3)
+# TODO: need to clean this up (convert to python3)
 
 import os
 import csv
-import glob
 import sys
 import numpy as np
 import pandas as pd
@@ -23,12 +22,14 @@ from sklearn.linear_model import LinearRegression
 
 import h5py
 
-def getQuality(qualFile, dictQC):
-    for line in open(qualFile):
+
+def getQuality(input_file):
+    dict_ = {}
+    for line in open(input_file):
         if line[0] == '#':
             continue
         cols = line.strip().split('\t')
-        chr = cols[0]
+        chro = cols[0]
         pos = cols[1]
         ref = cols[2]
         alt = cols[3]
@@ -36,60 +37,58 @@ def getQuality(qualFile, dictQC):
         filt = cols[4]
 
         s = '-'
-        mut = (chr, pos, ref, alt)
+        mut = (chro, pos, ref, alt)
         substitution = s.join(mut)
 
+        dict_[substitution] = filt
 
-        dictQC[substitution] = filt
+    return dict_
 
-def getPheno(phenoFile):
-    for line in open(phenoFile):
+
+def getPhenotype(pheno_file):
+    for line in open(pheno_file):
         if line[0] == '#' or line[0] == 'd':
             continue
         cols = line.strip().split('\t')
 
-        subID = cols[1]
-        APOE = str(cols[7])
+        sub_id = cols[1]
+        apoe = str(cols[7])
         race = str(cols[10])
         eth = str(cols[11])
         state = cols[13]
-        #print type(APOE)
 
         if race == '5' and eth == '0':
 
             if state == '0' or state == 0:
-                if APOE == '44' or APOE == '34':
-                    Risklist.append(subID) #healthy with risk
-
+                if apoe == '44' or apoe == '34':
+                    risk_list.append(sub_id)    # healthy with risk
 
             elif state == '1' or state == 1:
-                if APOE == '22' or APOE == '23': #AD with protection
-                    WTlist.append(subID)
+                if apoe == '22' or apoe == '23':    # AD with protection
+                    prot_list.append(sub_id)
             else:
                 pass
 
-    #print(WTlist)
-    #print(Risklist)
 
-
-def delNoStr(currList):
-    tempList = []
-    for x in currList:
+def delNoStr(current_list):
+    temp_list = []
+    for ea in current_list:
         try:
-            tempList.append(float(x))
-        except(ValueError):  # When There is a string
-            if(x in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']):
-                tempList.append(1.0)
+            temp_list.append(float(ea))
+        except ValueError:  # When there is a string
+            if ea in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']:
+                temp_list.append(1.0)
             else:
                 continue
-    return tempList
+    return temp_list
+
 
 def getInfo(ptFile, EA, totalVar, EA_ALL, totalVarALL, geneListALL):
     for line in open(ptFile):
         if line[0] == '#':
             continue
         cols = line.strip().split('\t')
-        chr = cols[0]
+        chro = cols[0]
         pos = cols[1]
         ref = cols[2]
         alt = cols[3]
@@ -102,14 +101,12 @@ def getInfo(ptFile, EA, totalVar, EA_ALL, totalVarALL, geneListALL):
 
         #get numbers for RVIS
         s = '-'
-        mut = (chr, pos, ref, alt)
+        mut = (chro, pos, ref, alt)
         substitutionG = s.join(mut)
 
         try:
-            qual = dictQC[substitutionG]
+            qual = dict_qc[substitutionG]
         except Exception as e:
-            #error = (filename + '\t' + str(e))
-            #errorlog.append(error)
             logf.write(filename + '\t' + str(e) + '\n')
             qual = 'non-PASS'
 
@@ -169,6 +166,7 @@ def getInfo(ptFile, EA, totalVar, EA_ALL, totalVarALL, geneListALL):
             except AttributeError:
                 EA_ALL[gene].append(float(action)/100.)
 
+
 def getSumEA(anyDict):
     newDict={}
     remove=[]
@@ -185,8 +183,9 @@ def getSumEA(anyDict):
         del newDict[key]
     return newDict
 
+
 def save2h5py(anyDict, name):
-    f = h5py.File(targetDirc + name + '.hdf5', 'w')
+    f = h5py.File(target_dirc + name + '.hdf5', 'w')
     for gene, EA in anyDict.items():
         if type(EA) == int:
             f.create_dataset(gene, data=np.array([EA], dtype=np.float32))
@@ -194,10 +193,11 @@ def save2h5py(anyDict, name):
             f.create_dataset(gene, data=np.array(EA, dtype=np.float32))
             #sys.exit()
 
-def calcRVEA_OneFit(geneList, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, totalVarWT, sumEA_WT,  name):
+
+def calcRVEA_OneFit(gene_list, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, totalVarWT, sumEA_WT,  name):
     X_list = []
     Y_list = []
-    for gene in geneList:
+    for gene in gene_list:
         try:
             x = totalVarALL[gene]
         except KeyError:
@@ -209,10 +209,10 @@ def calcRVEA_OneFit(geneList, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, 
         X_list.append(x)
         Y_list.append(y)
 
-    #fit LR (y=ax+b)
+    # fit LR (y=ax+b)
     X_mat = np.transpose(np.matrix(X_list))
     Y_mat = np.transpose(np.matrix(Y_list))
-    linreg = LinearRegression() #no need to fit to origin
+    linreg = LinearRegression()     # no need to fit to origin
 
     linreg.fit(X_mat, Y_mat)
     a = linreg.coef_[0][0]
@@ -223,13 +223,13 @@ def calcRVEA_OneFit(geneList, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, 
     RVEA_Risk = {}
     X_Risk = []
     Y_Risk = []
-    outputFileAA = targetDirc + 'RVEA_Risk' + name
+    outputFileAA = target_dirc + 'RVEA_Risk' + name
     with open(outputFileAA, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
         writer.writerow(['Gene', '#allMut', 'sumEA', 'Residual'])
-        #ax+by+c=0 (b=-1)
-        #r = ax-y+c/sqrt(a^2+b^2)
-        for gene in geneList:
+        # ax+by+c=0 (b=-1)
+        # r = ax-y+c/sqrt(a^2+b^2)
+        for gene in gene_list:
             try:
                 x = totalVarRisk[gene]
             except KeyError:
@@ -257,13 +257,13 @@ def calcRVEA_OneFit(geneList, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, 
     RVEA_WT = {}
     X_WT = []
     Y_WT = []
-    outputFileGG = targetDirc + 'RVEA_WT' + name
+    outputFileGG = target_dirc + 'RVEA_WT' + name
     with open(outputFileGG, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
         writer.writerow(['Gene', '#allMut', 'sumEA', 'Residual'])
-        #ax+by+c=0 (b=-1)
-        #r = ax-y+c/sqrt(a^2+b^2)
-        for gene in geneList:
+        # ax+by+c=0 (b=-1)
+        # r = ax-y+c/sqrt(a^2+b^2)
+        for gene in gene_list:
             try:
                 x = totalVarWT[gene]
             except KeyError:
@@ -288,18 +288,20 @@ def calcRVEA_OneFit(geneList, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk, 
 
     return RVEA_Risk, RVEA_WT
 
-def calcRofRVEA(geneList, RVEA_Risk, RVEA_WT, RofRVEA, name): #this is for only genes with mutations in both AA and GG
-    outputFile = targetDirc + 'ADSP_RofRVEA' + name
-    RVIS = []
+
+def calcRofRVEA(gene_list, r_risk, r_wt, name): # this is for only genes with mutations in both cohorts
+    outputFile = target_dirc + 'ADSP_RofRVEA' + name
+    ideal = []
+    dict_residual = {}
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
-        writer.writerow(['Gene', 'RVIS of Risk', 'RVIS of WT', 'RVIS of RVIS'])
+        writer.writerow(['Gene', 'risk_residual', 'wt_residual', 'iDEAL'])
         X_list = []
         Y_list = []
-        for gene in geneList:
+        for gene in gene_list:
 
-            x = RVEA_Risk[gene]
-            y = RVEA_WT[gene]
+            x = r_risk[gene]
+            y = r_wt[gene]
 
             X_list.append(x)
             Y_list.append(y)
@@ -313,96 +315,96 @@ def calcRofRVEA(geneList, RVEA_Risk, RVEA_WT, RofRVEA, name): #this is for only 
         c = linreg.intercept_[0]
 
         print('a = ', a, 'c = ', c)
-        #ax+by+c=0 (b=-1)
-        #r = ax-y+c/sqrt(a^2+b^2)
-        for gene in geneList:
-            x = RVEA_Risk[gene]
-            y = RVEA_WT[gene]
+        # ax+by+c=0 (b=-1)
+        # r = ax-y+c/sqrt(a^2+b^2)
+        for gene in gene_list:
+            x = r_risk[gene]
+            y = r_wt[gene]
 
             y_hat = (a*x + c)
             r = y - y_hat
 
             if name == '_real':
-                RofRVEA[gene] = r
+                dict_residual[gene] = r
             elif name == '_random':
-                if gene not in RofRVEA:
-                    RofRVEA[gene] = []
-                RofRVEA[gene].append(r)
+                if gene not in dict_residual:
+                    dict_residual[gene] = []
+                    dict_residual[gene].append(r)
             else:
                 print(name)
-            RVIS.append(r)
+                ideal.append(r)
             info = ([gene, x, y, r])
             writer.writerow(info)
 
     getRegPlot(X_list, Y_list, X_list, Y_list, 'RVEA_Risk', 'RVEA_WT', 'residualOfRVEAs', name)
-    return RofRVEA, RVIS
+    return dict_residual, ideal
 
-def getRegPlot(x_reg, y_reg, xx, yy, xlabel, ylabel, title, name):
-    plt.axhline(0, color = '0.75')
-    plt.axvline(0, color = '0.75')
-    sns.regplot(x = np.asarray(xx), y = np.asarray(yy), fit_reg = False)
-    ax = sns.regplot(x = np.asarray(x_reg), y = np.asarray(y_reg), scatter = False)
-    ax.set(xlabel=xlabel, ylabel=ylabel)
-    if ylabel == 'EAburden':
+
+def getRegPlot(x_reg, y_reg, xx, yy, x_label, y_label, title, name):
+    plt.axhline(0, color='0.75')
+    plt.axvline(0, color='0.75')
+    sns.regplot(x = np.asarray(xx), y=np.asarray(yy), fit_reg=False)
+    ax = sns.regplot(x = np.asarray(x_reg), y=np.asarray(y_reg), scatter=False)
+    ax.set(xlabel=x_label, ylabel=y_label)
+    if y_label == 'EAburden':
         plt.xlim(xmin=0)
         plt.ylim(ymin=0)
     else:
         pass
     plt.title(title)
-    plt.savefig(targetDirc + title + name + '.png', dpi = 200)
+    plt.savefig(target_dirc + title + name + '.png', dpi = 200)
     plt.clf()
 
-if __name__ == '__main__':
-    ControlFolder = '/media/vision/ExtraDrive1/Exome/ALZ/ADSP/Control'
-    CaseFolder = '/media/vision/ExtraDrive1/Exome/ALZ/ADSP/Case'
-    phenoFile = '/media/vision/ExtraDrive1/Exome/ALZ/ADSP/phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
 
-    qualFile = '/home/vision/Documents/GermlineProject/ADSP/snvquality_detailed_jamie.csv'
-    dictQC = {}
-    getQuality(qualFile, dictQC)
+if __name__ == '__main__':
+    control_folder = '/media/vision/ExtraDrive1/Exome/ALZ/ADSP/Control'
+    case_folder = '/media/vision/ExtraDrive1/Exome/ALZ/ADSP/Case'
+    phenotype_file = '/media/vision/ExtraDrive1/Exome/ALZ/ADSP/phs000572.v7.pht005179.v1.p4.c1.' \
+                     'CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
+
+    quality_file = '/home/vision/Documents/GermlineProject/ADSP/snvquality_detailed_jamie.csv'
+    dict_qc = getQuality(quality_file)
 
     print('-----Getting quality DONE-----')
 
     # Group patients into WT, Risk
-    WTlist = []
-    Risklist = []
+    prot_list = []
+    risk_list = []
 
-    getPheno(phenoFile)
+    getPhenotype(phenotype_file)
 
-    print(len(WTlist))
-    print(len(Risklist))
+    print(len(prot_list))
+    print(len(risk_list))
 
     print('-----Getting phenotype DONE-----')
 
-    geneListTotal = []
+    total_gene_list = []
 
-    ##h5py
+    # h5py
     totalVarRisk = Counter()
     totalVarWT = Counter()
     totalVarALL = Counter()
 
-    EA_Risk = {}
-    EA_WT = {}
-    EA_ALL = {}
+    EA_risk = {}
+    EA_wt = {}
+    EA_all = {}
 
-    targetDirc = '/home/vision/Documents/GermlineProject/ADSP/RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
+    target_dirc = '/home/vision/Documents/GermlineProject/ADSP/RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
 
     print('-----Getting info-----')
 
-    errorlog = []
-
     ptCount = 0
-    outputFile = targetDirc + 'RiskAlleleStatus.csv'
-    logf = open(targetDirc + 'error.log', 'w')
+    outputFile = target_dirc + 'RiskAlleleStatus.csv'
+    logf = open(target_dirc + 'error.log', 'w')
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
         writer.writerow(['PT_ID', 'AlleleStatus'])
-        for filename in os.listdir(ControlFolder):
+        for filename in os.listdir(control_folder):
             ptID = filename.split('.')[0]
-            ptFile = (os.path.join(ControlFolder, filename))
-            if ptID in Risklist:
+            ptFile = (os.path.join(control_folder, filename))
+            if ptID in risk_list:
                 status = 'Risk'
-                getInfo(ptFile, EA_Risk, totalVarRisk, EA_ALL, totalVarALL, geneListTotal)
+                getInfo(ptFile, EA_risk, totalVarRisk, EA_all, totalVarALL, total_gene_list)
 
             else:
                 status = 'Healthy_Something_else'
@@ -412,12 +414,12 @@ if __name__ == '__main__':
             writer.writerow(info)
         print(ptCount)
 
-        for filename in os.listdir(CaseFolder):
+        for filename in os.listdir(case_folder):
             ptID = filename.split('.')[0]
-            ptFile = (os.path.join(CaseFolder, filename))
-            if ptID in WTlist:
+            ptFile = (os.path.join(case_folder, filename))
+            if ptID in prot_list:
                 status = 'WT'
-                getInfo(ptFile, EA_WT, totalVarWT, EA_ALL, totalVarALL, geneListTotal)
+                getInfo(ptFile, EA_wt, totalVarWT, EA_all, totalVarALL, total_gene_list)
 
             else:
                 status = 'Case_Something_else'
@@ -429,10 +431,10 @@ if __name__ == '__main__':
 
         print(ptCount)
 
-    ##h5py
-    sumEA_Risk = getSumEA(EA_Risk)
-    sumEA_WT = getSumEA(EA_WT)
-    sumEA_ALL = getSumEA(EA_ALL)
+    # h5py
+    sumEA_Risk = getSumEA(EA_risk)
+    sumEA_WT = getSumEA(EA_wt)
+    sumEA_ALL = getSumEA(EA_all)
 
     save2h5py(totalVarRisk, 'totalVarRisk')
     save2h5py(totalVarWT, 'totalVarWT')
@@ -443,13 +445,12 @@ if __name__ == '__main__':
 
     print('-----Initializing RVEA calculation-----')
     # calculate RVEA of AA and GG using same fitted line (of all GG, AA, GA people)
-    normRVEA_Risk, normRVEA_WT = calcRVEA_OneFit(geneListTotal, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk,
+    normRVEA_Risk, normRVEA_WT = calcRVEA_OneFit(total_gene_list, totalVarALL, sumEA_ALL, totalVarRisk, sumEA_Risk,
                                                  totalVarWT, sumEA_WT, '_real')
     save2h5py(normRVEA_Risk, 'RVEA_Risk')
     save2h5py(normRVEA_WT, 'RVEA_WT')
 
-    RofRVEA = {}
-    RofRVEA, RVEA_list = calcRofRVEA(geneListTotal, normRVEA_Risk, normRVEA_WT, RofRVEA, '_real')
+    RofRVEA, RVEA_list = calcRofRVEA(total_gene_list, normRVEA_Risk, normRVEA_WT, '_real')
 
     save2h5py(RofRVEA, 'RofRVEA')
 
@@ -458,8 +459,7 @@ if __name__ == '__main__':
     #    RANDOM    #
     ################
 
-    totalPt = Risklist + WTlist
-    # germlineFiles = glob.glob(inputFolder + '/*.trauma')
+    totalPt = risk_list + prot_list
 
     randAAlist_total = []
     randGGlist_total = []
@@ -472,7 +472,7 @@ if __name__ == '__main__':
             pt = totalPt[i]  # pt = each patient
             # ptN = germlineFiles[r].rsplit('/',1)[1]
             # pt = ptN.split('.')[0]
-            if i < len(Risklist):  ##Risk
+            if i < len(risk_list):  # Risk
                 randAAlist.append(pt)
             else:
                 randGGlist.append(pt)
@@ -481,12 +481,11 @@ if __name__ == '__main__':
         randGGlist_total.append(randGGlist)
 
     df = pd.DataFrame(randAAlist_total)
-    df.to_csv(targetDirc + 'randomptsetsRisk.csv', sep='\t', index=False)
+    df.to_csv(target_dirc + 'randomptsetsRisk.csv', sep='\t', index=False)
 
     df = pd.DataFrame(randGGlist_total)
-    df.to_csv(targetDirc + 'randomptsetsWT.csv', sep='\t', index=False)
+    df.to_csv(target_dirc + 'randomptsetsWT.csv', sep='\t', index=False)
 
-    # inputFolder = '/media/vision/ExtraDrive1/Exome/ALZ/ADSP/All_shortname/'
     RVISofRVIS_random = {}
     for ptidx in range(100):
 
@@ -506,10 +505,10 @@ if __name__ == '__main__':
         randGGlist = randGGlist_total[ptidx]
 
         for pt in totalPt:
-            if pt in Risklist:
-                ptFile = (os.path.join(ControlFolder, pt))
-            elif pt in WTlist:
-                ptFile = (os.path.join(CaseFolder, pt))
+            if pt in risk_list:
+                ptFile = (os.path.join(control_folder, pt))
+            elif pt in prot_list:
+                ptFile = (os.path.join(case_folder, pt))
             else:
                 print('error')
                 sys.exit()
@@ -546,11 +545,11 @@ if __name__ == '__main__':
 
     # Get z-scores
     noInfo = 0
-    outputFile = targetDirc + 'ControlledZscores'
+    outputFile = target_dirc + 'ControlledZscores'
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
         writer.writerow(['Gene', 'residual', 'mean', 'std', 'z-score', 'RofRVEA_random'])
-        for gene in geneListTotal:
+        for gene in total_gene_list:
             try:
                 mean = np.mean(RVISofRVIS_random[gene])
                 std = np.std(RVISofRVIS_random[gene])
@@ -560,7 +559,8 @@ if __name__ == '__main__':
                 new_r = []
                 # for d in r:
                 #    new_r.append(float('{0:.2f}'.format(d)))
-                # info = ([gene, float('{0:.2f}'.format(x)), float('{0:.2f}'.format(mean)), float('{0:.2f}'.format(std)), float('{0:.2f}'.format(z)), new_r])
+                # info = ([gene, float('{0:.2f}'.format(x)), float('{0:.2f}'.format(mean)),
+                #          float('{0:.2f}'.format(std)), float('{0:.2f}'.format(z)), new_r])
 
                 info = ([gene, x, mean, std, z, r])
                 writer.writerow(info)
@@ -568,5 +568,3 @@ if __name__ == '__main__':
                 noInfo += 1
 
     print('number of genes with no z-score = ', noInfo)
-
-
