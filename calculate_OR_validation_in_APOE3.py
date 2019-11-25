@@ -93,7 +93,7 @@ if __name__ == '__main__':
     hc_all = 1657   # only 3/3 HC
     ad_all = 1346   # only 3/3 AD
 
-    outputFile = dirc + '216_updated/216genes_mutation_count_APOE3_withEA_OR_CI_clean.csv'
+    outputFile = dirc + '216_updated/216genes_mutation_count_APOE3_withEA_OR_CI_clean2.csv'
     #outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE3_withEA_OR_CI_clean.csv'
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter=',')
@@ -124,19 +124,23 @@ if __name__ == '__main__':
                     else:
                         odds_ratio, p_value, ci = calculate_or_with_ci(ad, hc, ad_all - ad, hc_all - hc)
 
-                    if het_ad != 0 and het_hc != 0:
-                        het_or, het_p, het_ci = calculate_or_with_ci(het_ad, het_hc, ad_all - het_ad, hc_all - het_hc)
-                    else:
+                    if het_ad == 0 and het_hc == 0:
                         het_or = 'NA'
                         het_ci = 'NA'
                         het_p = 'NA'
-
-                    if hom_ad != 0 and hom_hc != 0:
-                        hom_or, hom_p, hom_ci = calculate_or_with_ci(hom_ad, hom_hc, ad_all - hom_ad, hc_all - hom_hc)
+                    elif het_ad == 0 or het_hc == 0:
+                        het_or, het_p, het_ci = calculate_or_with_ci(het_ad + 1, het_hc + 1, ad_all - het_ad + 1, hc_all - het_hc + 1)
                     else:
+                        het_or, het_p, het_ci = calculate_or_with_ci(het_ad, het_hc, ad_all - het_ad, hc_all - het_hc)
+
+                    if hom_ad == 0 and hom_hc == 0:
                         hom_or = 'NA'
                         hom_ci = 'NA'
                         hom_p = 'NA'
+                    elif hom_ad == 0 or hom_hc == 0:
+                        hom_or, hom_p, hom_ci = calculate_or_with_ci(hom_ad + 1, hom_hc + 1, ad_all - hom_ad + 1, hc_all - hom_hc + 1)
+                    else:
+                        hom_or, hom_p, hom_ci = calculate_or_with_ci(hom_ad, hom_hc, ad_all - hom_ad, hc_all - hom_hc)
 
                     if ratio_ad == 0:
                         ratio_ad = '0:0'
