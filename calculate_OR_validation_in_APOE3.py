@@ -153,7 +153,7 @@ if __name__ == '__main__':
                         mean_action = action
                     else:
                         temp_list = []
-                        for x in action:
+                        for x in actions:
                             try:
                                 temp_list.append(float(x))
                             except ValueError: # this is for when Action contains 'no_gene'
