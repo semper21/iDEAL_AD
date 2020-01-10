@@ -29,7 +29,7 @@ def processPhenoFile(input_file):
     return caseList, controlList
 
 if __name__ == '__main__':
-    #target_directory = '/lab/rosinante/shared/ADSP/' #directory on rosinante
+    #target_directory = '/lab/rosinante/shared/ADSP/iDEAL_input_folder' #directory on rosinante
     target_directory = '/media/vision/ExtraDrive1/Exome/ADSP/' #my local machine
     phenotype_file = target_directory + 'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
 
