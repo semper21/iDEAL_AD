@@ -7,8 +7,9 @@ Created on Mar 3, 2020
 import os
 import numpy as np
 import pandas as pd
-
 from collections import Counter
+
+from germline_analyses import delNoStr, output_dict, matrix_out
 
 def get_quality(input_file):
     dict_ = {}
@@ -75,27 +76,14 @@ def get_phenotype(pheno_file):
     return AD2, AD3, AD4, HC2, HC3, HC4
 
 
-def delNoStr(current_list):
-    temp_list = []
-    for ea in current_list:
-        try:
-            temp_list.append(float(ea))
-        except ValueError:  # When there is a string
-            if ea in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']:
-                temp_list.append(1.0)
-            else:
-                continue
-    return temp_list
+def fill_matrix(trauma_file, pt_idx):
+    """ Fill matrices with average EA per gene per patient
 
-
-def fill_matrix(trauma_file, ptidx):
+    :param trauma_file: trauma file for an individual patient
+    :param ptidx: index of each patient
+    :return: Fills in 1) variant count matrix, 2) sum EA matrix
     """
-
-    :param trauma_file:
-    :param ptidx:
-    :return:
-    """
-    sum_ea_dict = {}
+    ea_dict = {}
     variant_counter = Counter()
     for line in open(trauma_file):
         if line[0] == '#':
@@ -137,13 +125,13 @@ def fill_matrix(trauma_file, ptidx):
         # get number of all variants (no maf cutoff, all var(except indels))
         variant_counter[gene] += 1
 
-        # get sum EA
-        if gene not in sum_ea_dict:
-            sum_ea_dict[gene] = []
+        # get list of EA for each gene
+        if gene not in ea_dict:
+            ea_dict[gene] = []
         if action in ['silent', '-', 'no_action', 'no_trace', 'no_gene'] or gene=='':
             continue
         elif action in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']:
-            sum_ea_dict[gene].append(1.)
+            ea_dict[gene].append(1.)
         else:
             try:
                 spl_EA = action.strip().split(';')
@@ -152,15 +140,21 @@ def fill_matrix(trauma_file, ptidx):
                     continue
                 else:
                     average = np.mean(new_spl_EA)
-                    sum_ea_dict[gene].append(average/100.)
+                    ea_dict[gene].append(average/100.)
             except AttributeError:
-                sum_ea_dict[gene].append(float(action)/100.)
+                ea_dict[gene].append(float(action)/100.)
 
-    for gene in total_gene_list:
+    for gene_idx, gene_ in enumerate(total_gene_list):
+        try:
+            matrix_freq[pt_idx][gene_idx] = variant_counter
+        except KeyError:
+            matrix_freq[pt_idx][gene_idx] = 0
 
-
-
-
+        try:
+            ea_list = ea_dict[gene_]
+            matrix_sum[pt_idx][gene_idx] = np.sum(ea_list)
+        except KeyError:
+            matrix_sum[pt_idx][gene_idx] = 0
 
 
 if __name__ == '__main__':
@@ -188,8 +182,9 @@ if __name__ == '__main__':
     total_gene_list = list(sorted(total_gene_set))
     print(len(total_gene_list))
 
-    for group in [ADe2, ADe3, ADe4, HCe2, HCe3, HCe4]:
-        matrix_freq = np.zeros((len(group), len(total_gene_list)))
+    group_names = ['ADe2', 'ADe3', 'ADe4', 'HCe2', 'HCe3', 'HCe4']
+    for grp_idx, group in enumerate([ADe2, ADe3, ADe4, HCe2, HCe3, HCe4]): # each 'item' in this list is a list of patient (="group")
+        matrix_freq = np.zeros((len(group), len(total_gene_list))) # patient by gene
         matrix_sum = np.zeros((len(group), len(total_gene_list)))
 
         for idx, pt_id in enumerate(group):
@@ -197,4 +192,7 @@ if __name__ == '__main__':
             pt_file = os.path.join(trauma_folder, filename)
 
             fill_matrix(pt_file, idx)
+
+        matrix_out(matrix_freq, group, total_gene_list, output_folder, group_names[grp_idx] + 'count')
+        matrix_out(matrix_sum, group, total_gene_list, output_folder, group_names[grp_idx] + '_sum')
 
