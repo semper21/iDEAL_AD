@@ -7,9 +7,9 @@ Created on Mar 3, 2020
 import os
 import numpy as np
 import pandas as pd
+from pathlib import Path
 from collections import Counter
 
-from germline_analyses import delNoStr, output_dict, matrix_out
 
 def get_quality(input_file):
     dict_ = {}
@@ -37,6 +37,7 @@ def get_quality(input_file):
 
 
 def get_phenotype(pheno_file):
+    AD2, AD3, AD4, HC2, HC3, HC4 = [], [], [], [], [], []
     for line in open(pheno_file):
         if line[0] == '#' or line[0] == 'd':
             continue
@@ -48,23 +49,21 @@ def get_phenotype(pheno_file):
         eth = str(cols[11])
         state = cols[13]
 
-        AD2, AD3, AD4, HC2, HC3, HC4 = [], [], [], [], [], []
-
         if race == '5' and eth == '0':  # Caucasians only
-            if str(state) == '1':                   # AD
-                if apoe == '22' or apoe == '23':    # APOE2
+            if str(state) == '1':  # AD
+                if apoe == '22' or apoe == '23':  # APOE2
                     AD2.append(sub_id)
-                elif apoe == '33':                  # APOE3
+                elif apoe == '33':  # APOE3
                     AD3.append(sub_id)
                 elif apoe == '44' or apoe == '34':  # APOE4
-                    AD4.append(sub_id)    # healthy with risk
+                    AD4.append(sub_id)  # healthy with risk
                 else:
                     pass
 
-            elif str(state) == '0':                 # HC
-                if apoe == '22' or apoe == '23':    # APOE2
+            elif str(state) == '0':  # HC
+                if apoe == '22' or apoe == '23':  # APOE2
                     HC2.append(sub_id)
-                elif apoe == '33':                  # APOE3
+                elif apoe == '33':  # APOE3
                     HC3.append(sub_id)
                 elif apoe == '44' or apoe == '34':  # APOE4
                     HC4.append(sub_id)
@@ -76,12 +75,25 @@ def get_phenotype(pheno_file):
     return AD2, AD3, AD4, HC2, HC3, HC4
 
 
-def fill_matrix(trauma_file, pt_idx):
-    """ Fill matrices with average EA per gene per patient
+def string_to_ea(current_list):
+    temp_list = []
+    for ea in current_list:
+        try:
+            temp_list.append(float(ea))
+        except ValueError:  # When there is a string
+            if ea in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']:
+                temp_list.append(1.0)
+            else:
+                continue
+    return temp_list
 
-    :param trauma_file: trauma file for an individual patient
-    :param ptidx: index of each patient
-    :return: Fills in 1) variant count matrix, 2) sum EA matrix
+
+def fill_matrix(trauma_file, ptidx):
+    """
+
+    :param trauma_file:
+    :param ptidx:
+    :return:
     """
     ea_dict = {}
     variant_counter = Counter()
@@ -103,11 +115,11 @@ def fill_matrix(trauma_file, pt_idx):
 
         s = '-'
         mut = (chro, pos, ref, alt)
-        substitutionG = s.join(mut)
+        substitution = s.join(mut)
 
         try:
-            qual = dict_qc[substitutionG]
-        except Exception:
+            qual = dict_qc[substitution]
+        except KeyError:
             qual = 'non-PASS'
 
         if qual == 'non-PASS':
@@ -125,44 +137,61 @@ def fill_matrix(trauma_file, pt_idx):
         # get number of all variants (no maf cutoff, all var(except indels))
         variant_counter[gene] += 1
 
-        # get list of EA for each gene
+        # get sum EA
         if gene not in ea_dict:
             ea_dict[gene] = []
-        if action in ['silent', '-', 'no_action', 'no_trace', 'no_gene'] or gene=='':
+        if action in ['silent', '-', 'no_action', 'no_trace', 'no_gene'] or gene == '':
             continue
         elif action in ['STOP', 'no_STOP', 'STOP-loss', 'START_loss']:
             ea_dict[gene].append(1.)
         else:
             try:
-                spl_EA = action.strip().split(';')
-                new_spl_EA = delNoStr(spl_EA)
-                if new_spl_EA == []:
+                spl_ea = action.strip().split(';')
+                new_spl_ea = string_to_ea(spl_ea)
+                if not new_spl_ea:
                     continue
                 else:
-                    average = np.mean(new_spl_EA)
-                    ea_dict[gene].append(average/100.)
+                    average = np.mean(new_spl_ea)
+                    ea_dict[gene].append(average / 100.)
             except AttributeError:
-                ea_dict[gene].append(float(action)/100.)
+                ea_dict[gene].append(float(action) / 100.)
 
-    for gene_idx, gene_ in enumerate(total_gene_list):
+    for gene_idx, gene in enumerate(total_gene_list):
         try:
-            matrix_freq[pt_idx][gene_idx] = variant_counter
+            ea_list = ea_dict[gene]
+            sum_ea = np.sum(ea_list)
         except KeyError:
-            matrix_freq[pt_idx][gene_idx] = 0
+            sum_ea = 0
 
         try:
-            ea_list = ea_dict[gene_]
-            matrix_sum[pt_idx][gene_idx] = np.sum(ea_list)
+            freq = variant_counter[gene]
         except KeyError:
-            matrix_sum[pt_idx][gene_idx] = 0
+            freq = 0
+
+        matrix_sum[gene_idx][ptidx] = sum_ea
+        matrix_freq[gene_idx][ptidx] = freq
+
+
+def matrix_out(matrix_, pt_list_, name):
+    """ Outputs matrices to files
+
+    :param matrix_: matrix
+    :param pt_list_: patient list
+    :param name: file name
+    :return: -
+    """
+    df = pd.DataFrame(matrix_, index=total_gene_list)
+    df.columns = pt_list_
+    df.to_csv(output_folder + name, sep='\t', index=True)
 
 
 if __name__ == '__main__':
-    input_folder = '/Users/ywkim/rosinante/ADSP/iDEAL_input_folder/' # this would change depending on
-                                                                     # where you have Rosinante mounted on
-    output_folder = '/output/'  # for now the output files will be stored locally
+    # input_folder = '/Users/ywkim/rosinante/shared/ADSP/iDEAL_input_folder/' # this would change depending on
+    input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'  # where you have Rosinante mounted on
 
-    quality_file = input_folder + 'snvquality_detailed_jamie.csv'   # generated using the raw data from dbgap
+    output_folder = str(Path().absolute()) + '/output/'  # for now the output files will be stored locally
+
+    quality_file = input_folder + 'snvquality_detailed_jamie.csv'  # generated using the raw data from dbgap
     dict_qc = get_quality(quality_file)
 
     phenotype_file = input_folder + 'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
@@ -171,28 +200,25 @@ if __name__ == '__main__':
     """
     Need to get the list of all the genes sequenced/observed
     """
-    total_gene_set = set()
-    trauma_folder = input_folder + 'after_QCfilter_jamie/'
-    for filename in os.listdir(trauma_folder):
-        pt_file = os.path.join(trauma_folder, filename)
-        df = pd.read_csv(pt_file, sep='\t', index_col=None)
-        genes = list(set(df['GENE'].values.tolist()))
-        total_gene_set.update(genes)
+    trauma_folder = input_folder + 'all_short_name/'
 
-    total_gene_list = list(sorted(total_gene_set))
+    df_genes = pd.read_csv(output_folder + 'total_gene_list.csv', sep=',', index_col=None)
+    total_gene_list = df_genes['Gene'].values.tolist()
     print(len(total_gene_list))
 
-    group_names = ['ADe2', 'ADe3', 'ADe4', 'HCe2', 'HCe3', 'HCe4']
-    for grp_idx, group in enumerate([ADe2, ADe3, ADe4, HCe2, HCe3, HCe4]): # each 'item' in this list is a list of patient (="group")
-        matrix_freq = np.zeros((len(group), len(total_gene_list))) # patient by gene
-        matrix_sum = np.zeros((len(group), len(total_gene_list)))
-
-        for idx, pt_id in enumerate(group):
-            filename = pt_id + '.trauma'
-            pt_file = os.path.join(trauma_folder, filename)
+    pt_lists = [ADe2, ADe3, ADe4, HCe2, HCe3, HCe4]
+    for idx, group in enumerate(['ADe2', 'ADe3', 'ADe4', 'HCe2', 'HCe3', 'HCe4']):
+        pt_list = pt_lists[idx]
+        matrix_freq = np.zeros((len(total_gene_list), len(pt_list)))
+        matrix_sum = np.zeros((len(total_gene_list), len(pt_list)))
+        counter = 0
+        for idx, pt_id in enumerate(pt_list):
+            pt_file = os.path.join(trauma_folder, pt_id)
 
             fill_matrix(pt_file, idx)
 
-        matrix_out(matrix_freq, group, total_gene_list, output_folder, group_names[grp_idx] + 'count')
-        matrix_out(matrix_sum, group, total_gene_list, output_folder, group_names[grp_idx] + '_sum')
+            matrix_out(matrix_freq, pt_list, 'frequency_matrix_' + group)
+            matrix_out(matrix_sum, pt_list, 'sum_ea_matrix_' + group)
+            counter += 1
 
+            print(group, counter)
