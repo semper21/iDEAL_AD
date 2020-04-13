@@ -201,11 +201,10 @@ if __name__ == '__main__':
             pt_file = os.path.join(trauma_folder, pt_id)
 
             fill_matrix(pt_file, pt_idx)
-
-            matrix_out(matrix_freq, pt_list, total_gene_list, output_folder, 'frequency_matrix_' + group)
-            matrix_out(matrix_sum, pt_list, total_gene_list, output_folder, 'sum_ea_matrix_' + group)
             counter += 1
 
             print(group, counter)
 
+        matrix_out(matrix_freq, pt_list, total_gene_list, output_folder, 'frequency_matrix_' + group)
+        matrix_out(matrix_sum, pt_list, total_gene_list, output_folder, 'sum_ea_matrix_' + group)
         output_dict({k: v for v, k in enumerate(pt_list)}, output_folder, group + '_ptidx.tsv', sep='\t')
