@@ -31,10 +31,10 @@ def matrix_out(matrix_, pt_list_, gene_list_, output_dirc, name):
     """
     df = pd.DataFrame(matrix_, index=gene_list_)
     df.columns = pt_list_
-    df.to_csv(output_dirc + name, sep='\t', index=True)
+    df.to_csv(output_dirc + name + '.tsv', sep='\t', index=True)
 
 
-def output_dict(any_dict, output_dirc, name):
+def output_dict(any_dict, output_dirc, name, sep):
     """ Outputs any dictionary to a file
 
     :param any_dict: any dictionary
@@ -43,7 +43,15 @@ def output_dict(any_dict, output_dirc, name):
     :return: -
     """
     df = pd.DataFrame.from_dict(any_dict, orient='index')
-    df.to_csv(output_dirc + name, sep='\t', index=True)
+    df.to_csv(output_dirc + name, sep=sep, index=True)
+
+
+def get_matrix_as_df(matrix_folder, filename, sep):
+    matrix_file = matrix_folder + filename
+    df = pd.read_csv(matrix_file, sep=sep, index_col=None)
+
+    return df
+
 
 if __name__ == '__main__':
     pass

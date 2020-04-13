@@ -10,6 +10,7 @@ import pandas as pd
 from pathlib import Path
 from collections import Counter
 
+from germline_analyses import matrix_out, output_dict
 
 def get_quality(input_file):
     dict_ = {}
@@ -91,9 +92,9 @@ def string_to_ea(current_list):
 def fill_matrix(trauma_file, ptidx):
     """
 
-    :param trauma_file:
-    :param ptidx:
-    :return:
+    :param trauma_file: each trauma file contains germline variant info for each patient
+    :param ptidx: patient indices
+    :return: fills in the matrices
     """
     ea_dict = {}
     variant_counter = Counter()
@@ -172,19 +173,6 @@ def fill_matrix(trauma_file, ptidx):
         matrix_freq[gene_idx][ptidx] = freq
 
 
-def matrix_out(matrix_, pt_list_, name):
-    """ Outputs matrices to files
-
-    :param matrix_: matrix
-    :param pt_list_: patient list
-    :param name: file name
-    :return: -
-    """
-    df = pd.DataFrame(matrix_, index=total_gene_list)
-    df.columns = pt_list_
-    df.to_csv(output_folder + name, sep='\t', index=True)
-
-
 if __name__ == '__main__':
     # input_folder = '/Users/ywkim/rosinante/shared/ADSP/iDEAL_input_folder/' # this would change depending on
     input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'  # where you have Rosinante mounted on
@@ -197,9 +185,6 @@ if __name__ == '__main__':
     phenotype_file = input_folder + 'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
     ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype(phenotype_file)
 
-    """
-    Need to get the list of all the genes sequenced/observed
-    """
     trauma_folder = input_folder + 'all_short_name/'
 
     df_genes = pd.read_csv(output_folder + 'total_gene_list.csv', sep=',', index_col=None)
@@ -212,13 +197,15 @@ if __name__ == '__main__':
         matrix_freq = np.zeros((len(total_gene_list), len(pt_list)))
         matrix_sum = np.zeros((len(total_gene_list), len(pt_list)))
         counter = 0
-        for idx, pt_id in enumerate(pt_list):
+        for pt_idx, pt_id in enumerate(pt_list):
             pt_file = os.path.join(trauma_folder, pt_id)
 
-            fill_matrix(pt_file, idx)
+            fill_matrix(pt_file, pt_idx)
 
-            matrix_out(matrix_freq, pt_list, 'frequency_matrix_' + group)
-            matrix_out(matrix_sum, pt_list, 'sum_ea_matrix_' + group)
+            matrix_out(matrix_freq, pt_list, total_gene_list, output_folder, 'frequency_matrix_' + group)
+            matrix_out(matrix_sum, pt_list, total_gene_list, output_folder, 'sum_ea_matrix_' + group)
             counter += 1
 
             print(group, counter)
+
+        output_dict({k: v for v, k in enumerate(pt_list)}, output_folder, group + '_ptidx.tsv', sep='\t')
