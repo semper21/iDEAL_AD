@@ -46,9 +46,9 @@ def output_dict(any_dict, output_dirc, filename, sep):
     df.to_csv(output_dirc + filename, sep=sep, index=True)
 
 
-def get_matrix_as_df(matrix_folder, filename, sep):
+def get_matrix_as_df(matrix_folder, filename, sep, index_col):
     matrix_file = matrix_folder + filename
-    df = pd.read_csv(matrix_file, sep=sep, index_col=None)
+    df = pd.read_csv(matrix_file, sep=sep, index_col=index_col)
 
     return df
 
