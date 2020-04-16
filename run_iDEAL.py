@@ -329,7 +329,7 @@ def calcRofRVEA(gene_list, r_risk, r_wt, name): # this is for only genes with mu
             elif name == '_random':
                 if gene not in dict_residual:
                     dict_residual[gene] = []
-                    dict_residual[gene].append(r)
+                dict_residual[gene].append(r)
             else:
                 print(name)
                 ideal.append(r)

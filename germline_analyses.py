@@ -20,7 +20,7 @@ def delNoStr(current_list):
 
 
 def matrix_out(matrix_, pt_list_, gene_list_, output_dirc, name):
-    """ Outputs matrices to files
+    """ Outputs gene by patient matrices to files
 
     :param matrix_: matrix
     :param pt_list_: patient list
@@ -34,7 +34,7 @@ def matrix_out(matrix_, pt_list_, gene_list_, output_dirc, name):
     df.to_csv(output_dirc + name + '.tsv', sep='\t', index=True)
 
 
-def output_dict(any_dict, output_dirc, name, sep):
+def output_dict(any_dict, output_dirc, filename, sep):
     """ Outputs any dictionary to a file
 
     :param any_dict: any dictionary
@@ -43,7 +43,7 @@ def output_dict(any_dict, output_dirc, name, sep):
     :return: -
     """
     df = pd.DataFrame.from_dict(any_dict, orient='index')
-    df.to_csv(output_dirc + name, sep=sep, index=True)
+    df.to_csv(output_dirc + filename, sep=sep, index=True)
 
 
 def get_matrix_as_df(matrix_folder, filename, sep):
