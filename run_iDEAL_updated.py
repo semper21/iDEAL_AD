@@ -9,11 +9,12 @@ import sys
 import csv
 import numpy as np
 import pandas as pd
+pd.options.mode.chained_assignment = None   # this doesn't raise SettingWithCopyWarning
 import seaborn as sns
 from pathlib import Path
 from random import shuffle
 import matplotlib.pyplot as plt
-from germline_analyses import get_matrix_as_df
+from germline_analyses import get_matrix_as_df, output_dict
 from sklearn.linear_model import LinearRegression
 
 
@@ -57,8 +58,8 @@ def initial_lin_reg_one_fit(df_ADe2_sum_, df_ADe2_freq_, df_HCe4_sum_, df_HCe4_f
     X_total = X_ADe2 + X_HCe4
     Y_total = Y_ADe2 + Y_HCe4
 
-    X_mat = np.transpose(np.asarray[X_total])
-    Y_mat = np.transpose(np.asarray[Y_total])
+    X_mat = np.transpose(np.asarray([X_total]))
+    Y_mat = np.transpose(np.asarray([Y_total]))
     lin_reg = LinearRegression()
 
     lin_reg.fit(X_mat, Y_mat)
@@ -88,12 +89,17 @@ def initial_lin_reg_one_fit(df_ADe2_sum_, df_ADe2_freq_, df_HCe4_sum_, df_HCe4_f
     get_regression_plot(X_total, Y_total, X_ADe2, Y_ADe2, '# of variants', 'sum of EA', 'residuals_ADe2', test_type)
     get_regression_plot(X_total, Y_total, X_HCe4, Y_HCe4, '# of variants', 'sum of EA', 'residuals_HCe4', test_type)
 
+    df_ADe2_freq_.drop('Total', axis=1, inplace=True)
+    df_HCe4_freq_.drop('Total', axis=1, inplace=True)
+    df_ADe2_sum_.drop('Total', axis=1, inplace=True)
+    df_HCe4_sum_.drop('Total', axis=1, inplace=True)
+
     return residual_HCe4, residual_ADe2
 
 
 def lin_reg_of_residuals(x_list, y_list, random_ideal_dict_, test_type):
-    x_mat = np.transpose(np.asarray[x_list])
-    y_mat = np.transpose(np.asarray[y_list])
+    x_mat = np.transpose(np.asarray([x_list]))
+    y_mat = np.transpose(np.asarray([y_list]))
     lin_reg = LinearRegression()
 
     lin_reg.fit(x_mat, y_mat)
@@ -103,13 +109,13 @@ def lin_reg_of_residuals(x_list, y_list, random_ideal_dict_, test_type):
     r_of_r_list = []
 
     for idx_, gene_ in enumerate(total_gene_list):
-        x = x_list(idx_)
-        y = y_list(idx_)
+        x = x_list[idx_]
+        y = y_list[idx_]
         r_of_residuals = get_residual(a, c, x, y)
 
-        if test_type == 'test':
+        if test_type == '_test':
             r_of_r_list.append(r_of_residuals)
-        elif test_type == 'random':
+        elif test_type == '_random':
             try:
                 random_ideal_dict_[gene_].append(r_of_residuals)
             except KeyError:
@@ -119,9 +125,10 @@ def lin_reg_of_residuals(x_list, y_list, random_ideal_dict_, test_type):
             print('Error: you should never get this error')
             sys.exit()
 
-    df_ = pd.DataFrame({'Gene': total_gene_list, 'r_HCe4': x_list, 'r_ADe2': y_list, 'iDEAL': r_of_r_list})
-    df_.to_csv(output_folder + 'r_of_residuals_iDEAL.tsv', sep='\t', index=False)
-    get_regression_plot(x_list, y_list, x_list, y_list, 'r_HCe4', 'r_ADe2', 'iDEAL', test_type)
+    if test_type == '_test':
+        df_ = pd.DataFrame({'Gene': total_gene_list, 'r_HCe4': x_list, 'r_ADe2': y_list, 'iDEAL': r_of_r_list})
+        df_.to_csv(output_folder + 'r_of_residuals_iDEAL.tsv', sep='\t', index=False)
+        get_regression_plot(x_list, y_list, x_list, y_list, 'r_HCe4', 'r_ADe2', 'iDEAL', test_type)
 
     return r_of_r_list
 
@@ -181,6 +188,7 @@ if __name__ == '__main__':
     df_freq = pd.merge(df_HCe4_freq, df_ADe2_freq, left_index=True, right_index=True)
 
     for pt_idx in range(1000):
+        print('randomization #' + str(pt_idx+1))
         random_e4 = random_e4_total[pt_idx]
         random_e2 = random_e2_total[pt_idx]
 
@@ -196,7 +204,7 @@ if __name__ == '__main__':
 
         lin_reg_of_residuals(residuals_random_e4, residuals_random_e2, random_ideal_dict, '_random')
 
-        # TODO save ideal_random_dict
+    output_dict(random_ideal_dict, output_folder, 'randomized_ideal_scores', sep='\t')
 
     # Get z-scores
 
