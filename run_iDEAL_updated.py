@@ -212,7 +212,7 @@ if __name__ == '__main__':
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
         writer.writerow(['Gene', 'iDEAL', 'mean', 'std', 'z-score', 'iDEAL_random'])
-        for idx, gene in total_gene_list:
+        for idx, gene in enumerate(total_gene_list):
             random_ideal_list = random_ideal_dict[gene]
             mean = np.mean(random_ideal_list)
             std = np.std(random_ideal_list)
