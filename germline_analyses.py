@@ -53,5 +53,13 @@ def get_matrix_as_df(matrix_folder, filename, sep, index_col):
     return df
 
 
+def get_list_from_csv(input_file, column_name, sep):
+    df = pd.read_csv(input_file, sep=sep, index_col=None)
+    l = df[column_name].values.tolist()
+
+    return l
+
+
+
 if __name__ == '__main__':
     pass
