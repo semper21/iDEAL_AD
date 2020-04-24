@@ -76,6 +76,18 @@ def get_phenotype(pheno_file):
     return AD2, AD3, AD4, HC2, HC3, HC4
 
 
+def get_phenotype_from_excel(phenotype_file):
+    df_= pd.read_excel(phenotype_file)
+    HC2 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([22, 23]))]['ID'].values.tolist()
+    HC3 = df_.loc[(df_['AD'] == 0) & (df_['APOE'] == 33)]['ID'].values.tolist()
+    HC4 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([44, 43]))]['ID'].values.tolist()
+    AD2 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([22, 23]))]['ID'].values.tolist()
+    AD3 = df_.loc[(df_['AD'] == 1) & (df_['APOE'] == 33)]['ID'].values.tolist()
+    AD4 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([44, 43]))]['ID'].values.tolist()
+
+    return AD2, AD3, AD4, HC2, HC3, HC4
+
+
 def string_to_ea(current_list):
     temp_list = []
     for ea in current_list:
@@ -113,7 +125,7 @@ def fill_matrix(trauma_file, ptidx):
 
         if gene == '':
             continue
-
+        """ # Only needed for APSP_discovery
         s = '-'
         mut = (chro, pos, ref, alt)
         substitution = s.join(mut)
@@ -122,14 +134,14 @@ def fill_matrix(trauma_file, ptidx):
             qual = dict_qc[substitution]
         except KeyError:
             qual = 'non-PASS'
-
+        
         if qual == 'non-PASS':
             continue
         elif qual == 'PASS':
             pass
         else:
             print('ERROR')
-
+        """
         if sub == '-':  # no indels
             continue
         if gene == 'APOE' and sub == 'C130R':
@@ -175,10 +187,13 @@ def fill_matrix(trauma_file, ptidx):
 
 if __name__ == '__main__':
     # input_folder = '/Users/ywkim/rosinante/shared/ADSP/iDEAL_input_folder/' # this would change depending on
-    input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'  # where you have Rosinante mounted on
+    cohort_name = 'ADSP_extension'
+    input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/' + cohort_name + '/'  # where Rosinante is mounted on
 
-    output_folder = str(Path().absolute()) + '/output/'  # for now the output files will be stored locally
+    output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/'  # for now the output files will be stored locally
 
+    """
+    # FOR ADSP_DISCOVERY
     quality_file = input_folder + 'snvquality_detailed_jamie.csv'  # generated using the raw data from dbgap
     dict_qc = get_quality(quality_file)
 
@@ -186,6 +201,13 @@ if __name__ == '__main__':
     ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype(phenotype_file)
 
     trauma_folder = input_folder + 'all_short_name/'
+    """
+
+    # FOR ADSP_EXTENSION
+    phenotype_file = input_folder + ''  #TODO
+    ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype_from_excel(phenotype_file)
+
+    trauma_folder = input_folder + 'Actions/'
 
     df_genes = pd.read_csv(output_folder + 'total_gene_list.csv', sep=',', index_col=None)
     total_gene_list = df_genes['Gene'].values.tolist()
@@ -198,8 +220,8 @@ if __name__ == '__main__':
         matrix_sum = np.zeros((len(total_gene_list), len(pt_list)))
         counter = 0
         for pt_idx, pt_id in enumerate(pt_list):
-            pt_file = os.path.join(trauma_folder, pt_id)
-
+            # pt_file = os.path.join(trauma_folder, pt_id)
+            pt_file = os.path.join(trauma_folder, pt_id + '.trauma')
             fill_matrix(pt_file, pt_idx)
             counter += 1
 
