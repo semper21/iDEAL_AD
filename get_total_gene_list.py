@@ -10,15 +10,16 @@ from pathlib import Path
 
 if __name__ == '__main__':
     # input_folder = '/Users/ywkim/rosinante/shared/ADSP/iDEAL_input_folder/' # this would change depending on
-    input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'  # where you have Rosinante mounted on
-
-    output_folder = str(Path().absolute()) + '/output/'  # for now the output files will be stored locally
+    # input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'  # where you have Rosinante mounted on
+    input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/ADSP_extension/'
+    output_folder = str(Path().absolute()) + '/output_ADSP_extension/'  # for now the output files will be stored locally
 
     """
     Need to get the list of all the genes sequenced/observed
     """
     total_gene_set = set()
-    trauma_folder = input_folder + 'after_QCfilter_jamie/'
+    #trauma_folder = input_folder + 'after_QCfilter_jamie/'
+    trauma_folder = input_folder + 'Actions/'
 
     for idx, filename in enumerate(os.listdir(trauma_folder)):
         pt_file = os.path.join(trauma_folder, filename)

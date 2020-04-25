@@ -204,7 +204,7 @@ if __name__ == '__main__':
     """
 
     # FOR ADSP_EXTENSION
-    phenotype_file = input_folder + ''  #TODO
+    phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'  #TODO
     ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype_from_excel(phenotype_file)
 
     trauma_folder = input_folder + 'Actions/'
