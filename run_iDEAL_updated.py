@@ -39,7 +39,7 @@ def get_regression_plot(x_reg, y_reg, xx, yy, x_label, y_label, title, test_type
     else:
         pass
     plt.title(title)
-    plt.savefig(output_folder + '/plots/' + title + test_type + '.png', dpi = 200)
+    plt.savefig(output_folder + 'plots/' + title + test_type + '.png', dpi = 200)
     plt.clf()
 
 
@@ -135,8 +135,8 @@ def lin_reg_of_residuals(x_list, y_list, random_ideal_dict_, test_type):
 
 if __name__ == '__main__':
     # input_folder = '/Users/ywkim/rosinante/ADSP/iDEAL_input_folder/' # This would change depending on
-    input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'   # where you have Rosinante mounted on
-    output_folder = str(Path().absolute()) + '/output/'  # For now the output files will be stored locally
+    # input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'   # where you have Rosinante mounted on
+    output_folder = str(Path().absolute()) + '/output_ADSP_extension/'  # For now the output files will be stored locally
 
     df_ADe2_sum = get_matrix_as_df(output_folder, 'sum_ea_matrix_ADe2.tsv', sep='\t', index_col=0)
     df_HCe4_sum = get_matrix_as_df(output_folder, 'sum_ea_matrix_HCe4.tsv', sep='\t', index_col=0)

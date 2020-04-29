@@ -80,10 +80,10 @@ def get_phenotype_from_excel(phenotype_file):
     df_= pd.read_excel(phenotype_file)
     HC2 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([22, 23]))]['ID'].values.tolist()
     HC3 = df_.loc[(df_['AD'] == 0) & (df_['APOE'] == 33)]['ID'].values.tolist()
-    HC4 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([44, 43]))]['ID'].values.tolist()
+    HC4 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([44, 34]))]['ID'].values.tolist()
     AD2 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([22, 23]))]['ID'].values.tolist()
     AD3 = df_.loc[(df_['AD'] == 1) & (df_['APOE'] == 33)]['ID'].values.tolist()
-    AD4 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([44, 43]))]['ID'].values.tolist()
+    AD4 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([44, 34]))]['ID'].values.tolist()
 
     return AD2, AD3, AD4, HC2, HC3, HC4
 
