@@ -9,6 +9,7 @@ import allel
 import numpy as np
 import pandas as pd
 
+#TODO: THIS NEEDS TO BE RE-RUN
 def get_phenotype_from_excel(phenotype_file, samples_):
     df_= pd.read_excel(phenotype_file)
 
@@ -19,17 +20,17 @@ def get_phenotype_from_excel(phenotype_file, samples_):
     all_idx = df_['callset_idx'].values.tolist()
     HC2 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([22, 23]))]['ID'].values.tolist()
     HC3 = df_.loc[(df_['AD'] == 0) & (df_['APOE'] == 33)]['ID'].values.tolist()
-    HC4 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([44, 43]))]['ID'].values.tolist()
+    HC4 = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([44, 34]))]['ID'].values.tolist()
     AD2 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([22, 23]))]['ID'].values.tolist()
     AD3 = df_.loc[(df_['AD'] == 1) & (df_['APOE'] == 33)]['ID'].values.tolist()
-    AD4 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([44, 43]))]['ID'].values.tolist()
+    AD4 = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([44, 34]))]['ID'].values.tolist()
 
     HC2_idx = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([22, 23]))]['callset_idx'].values.tolist()
     HC3_idx = df_.loc[(df_['AD'] == 0) & (df_['APOE'] == 33)]['callset_idx'].values.tolist()
-    HC4_idx = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([44, 43]))]['callset_idx'].values.tolist()
+    HC4_idx = df_.loc[(df_['AD'] == 0) & (df_['APOE'].isin([44, 34]))]['callset_idx'].values.tolist()
     AD2_idx = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([22, 23]))]['callset_idx'].values.tolist()
     AD3_idx = df_.loc[(df_['AD'] == 1) & (df_['APOE'] == 33)]['callset_idx'].values.tolist()
-    AD4_idx = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([44, 43]))]['callset_idx'].values.tolist()
+    AD4_idx = df_.loc[(df_['AD'] == 1) & (df_['APOE'].isin([44, 34]))]['callset_idx'].values.tolist()
 
     return all_pt, all_idx, AD2, AD3, AD4, HC2, HC3, HC4, HC2_idx, HC3_idx, HC4_idx, AD2_idx, AD3_idx, AD4_idx
 
