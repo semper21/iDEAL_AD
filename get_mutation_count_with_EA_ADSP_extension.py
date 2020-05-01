@@ -154,7 +154,7 @@ if __name__ == '__main__':
 
     output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/'  # for now the output files will be stored locally
 
-    phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'  #TODO
+    phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'
     apoe2_ad, apoe3_ad, ADe4, HCe2, apoe3_hc, apoe4_hc = get_phenotype_from_excel(phenotype_file)
 
     trauma_folder = input_folder + 'Actions/'
