@@ -20,7 +20,25 @@ import csv
 import numpy as np
 import pandas as pd
 from pathlib import Path
+import scipy.stats as stats
 import statsmodels.api as sm
+
+
+def calculate_or(a, b, c, d):
+    table = np.zeros((2, 2))
+    # a: affected with mutation
+    table[0][0] = a
+    # b: healthy with mutation
+    table[0][1] = b
+    # c: affected w/o mutation
+    table[1][0] = c
+    # d: healthy w/o mutation
+    table[1][1] = d
+
+    oddsratio, pvalue = stats.fisher_exact(table)
+
+    return oddsratio, pvalue
+
 
 def calculate_or_with_ci(a, b, c, d):
     table = np.zeros((2, 2))
@@ -90,7 +108,7 @@ if __name__ == '__main__':
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter=',')
         writer.writerow(['Gene', 'Sub', 'Action', 'Het:Hom Case', 'Het:Hom Control', 'Het_OR', 'Het_CI', 'Het_p-value',
-                         'Hom_OR', 'Hom_CI', 'Hom_p-value', '# Case', '# Control', 'OR', 'CI', 'p-value'])
+                         'Hom_OR', 'Hom_CI', 'Hom_p-value', '# Case', '# Control', 'OR', 'CI', 'p-value', 'fisher_p-value'])
 
         for gene in genes:
             sub_info = df[df['Gene'] == gene].values
@@ -113,8 +131,10 @@ if __name__ == '__main__':
                 else:
                     if ad == 0 or hc == 0:
                         odds_ratio, p_value, ci = calculate_or_with_ci(ad + 1, hc + 1, ad_all - ad + 1, hc_all - hc + 1)
+                        fisher_p = calculate_or(ad + 1, hc + 1, ad_all - ad + 1, hc_all - hc + 1)[1]
                     else:
                         odds_ratio, p_value, ci = calculate_or_with_ci(ad, hc, ad_all - ad, hc_all - hc)
+                        fisher_p = calculate_or(ad, hc, ad_all - ad, hc_all - hc)[1]
 
                     if het_ad == 0 and het_hc == 0:
                         het_or = 'NA'
@@ -153,5 +173,5 @@ if __name__ == '__main__':
                         mean_action = np.mean(temp_list)
 
                     info = [gene, sub, mean_action, ratio_ad, ratio_hc, het_or, het_ci, het_p, hom_or, hom_ci, hom_p,
-                            ad, hc, odds_ratio, ci, p_value]
+                            ad, hc, odds_ratio, ci, p_value, fisher_p]
                     writer.writerow(info)
