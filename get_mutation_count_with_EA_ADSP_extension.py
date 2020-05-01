@@ -194,23 +194,25 @@ if __name__ == '__main__':
         pt_file = (os.path.join(trauma_folder, pt_id + '.trauma'))
         getInfo(pt_file, ea_apoe4_hc, sub_apoe4_hc, het_count_apoe4_hc, homo_count_apoe4_hc)
         pt_count += 1
-
+    print(pt_count)
+    pt_count = 0
     for idx, pt_id in enumerate(apoe3_hc):
         pt_file = (os.path.join(trauma_folder, pt_id + '.trauma'))
         getInfo(pt_file, ea_apoe3_hc, sub_apoe3_hc, het_count_apoe3_hc, homo_count_apoe3_hc)
         pt_count += 1
 
     print(pt_count)
-
+    pt_count = 0
     for idx, pt_id in enumerate(apoe2_ad):
         pt_file = (os.path.join(trauma_folder, pt_id + '.trauma'))
         getInfo(pt_file, ea_apoe2_ad, sub_apoe2_ad, het_count_apoe2_ad, homo_count_apoe2_ad)
         pt_count += 1
-
+    print(pt_count)
+    pt_count = 0
     for idx, pt_id in enumerate(apoe3_ad):
         pt_file = (os.path.join(trauma_folder, pt_id + '.trauma'))
         getInfo(pt_file, ea_apoe3_ad, sub_apoe3_ad, het_count_apoe3_ad, homo_count_apoe3_ad)
-
+        pt_count += 1
     print(pt_count)
 
     output_dict(sub_apoe2_ad, het_count_apoe2_ad, homo_count_apoe2_ad, 'APOE2-AD')
