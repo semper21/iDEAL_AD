@@ -156,9 +156,11 @@ if __name__ == '__main__':
 
     phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'
     apoe2_ad, apoe3_ad, ADe4, HCe2, apoe3_hc, apoe4_hc = get_phenotype_from_excel(phenotype_file)
+    ad = apoe2_ad + ADe4 + apoe3_ad
+    hc = apoe4_hc + HCe2 + apoe3_hc
 
     trauma_folder = input_folder + 'Actions/'
-
+    """
     ea_apoe2_ad = {}
     ea_apoe4_hc = {}
     ea_apoe3_ad = {}
@@ -178,6 +180,15 @@ if __name__ == '__main__':
     homo_count_apoe4_hc = {}
     homo_count_apoe3_ad = {}
     homo_count_apoe3_hc = {}
+    """
+    ea_ad = {}
+    ea_hc = {}
+    sub_ad = {}
+    sub_hc = {}
+    het_count_ad = {}
+    het_count_hc = {}
+    homo_count_ad = {}
+    homo_count_hc = {}
 
     gene_file = output_folder + 'iDEAL_og_genelist.txt'
     dfGene = pd.read_csv(gene_file, index_col=None)
@@ -188,7 +199,7 @@ if __name__ == '__main__':
 
     errorlog = []
 
-
+    """
     pt_count = 0
     for idx, pt_id in enumerate(apoe4_hc):
         pt_file = (os.path.join(trauma_folder, pt_id + '.trauma'))
@@ -219,3 +230,19 @@ if __name__ == '__main__':
     output_dict(sub_apoe4_hc, het_count_apoe4_hc, homo_count_apoe4_hc, 'APOE4-HC')
     output_dict(sub_apoe3_ad, het_count_apoe3_ad, homo_count_apoe3_ad, 'APOE3-AD')
     output_dict(sub_apoe3_hc, het_count_apoe3_hc, homo_count_apoe3_hc, 'APOE3-HC')
+    """
+    pt_count = 0
+    for idx, pt_id in enumerate(hc):
+        pt_file = (os.path.join(trauma_folder, pt_id + '.trauma'))
+        getInfo(pt_file, ea_hc, sub_hc, het_count_hc, homo_count_hc)
+        pt_count += 1
+    print(pt_count)
+
+    pt_count = 0
+    for idx, pt_id in enumerate(ad):
+        pt_file = (os.path.join(trauma_folder, pt_id + '.trauma'))
+        getInfo(pt_file, ea_ad, sub_ad, het_count_ad, homo_count_ad)
+        pt_count += 1
+
+    output_dict(sub_ad, het_count_ad, homo_count_ad, 'APOE234_AD')
+    output_dict(sub_hc, het_count_hc, homo_count_hc, 'APOE234_HC')
