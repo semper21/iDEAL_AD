@@ -82,10 +82,12 @@ if __name__ == '__main__':
     """
     case_file = dirc + '216_updated/216_mutation_count_APOE3-AD.csv'
     control_file = dirc + '216_updated/216_mutation_count_APOE3-HC.csv'
-    """
 
     case_file = dirc + '216_mutation_count_APOE3-AD.csv'
     control_file = dirc + '216_mutation_count_APOE3-HC.csv'
+    """
+    case_file = dirc + '216_mutation_count_APOE234_AD.csv'
+    control_file = dirc + '216_mutation_count_APOE234_HC.csv'
 
     dfCase = pd.read_csv(case_file, sep=',')
     #dfCase = dfCase[['Gene', 'Sub', 'Action', 'Count', 'Het:Hom']]
@@ -94,18 +96,23 @@ if __name__ == '__main__':
 
     df = dfCase.merge(dfControl, on=['Gene', 'Sub', 'Action'], how='outer')
     df = df.fillna(0)
-    df.columns = ['Gene', 'Sub', 'Action', '# APOE3-AD', 'Het APOE3-AD', 'Hom APOE3-AD', 'Het:Hom APOE3-AD',
-                  '# APOE3-HC', 'Het APOE3-HC', 'Hom APOE3-HC', 'Het:Hom APOE3-HC']
+    # df.columns = ['Gene', 'Sub', 'Action', '# APOE3-AD', 'Het APOE3-AD', 'Hom APOE3-AD', 'Het:Hom APOE3-AD',
+    #              '# APOE3-HC', 'Het APOE3-HC', 'Hom APOE3-HC', 'Het:Hom APOE3-HC']
+    df.columns = ['Gene', 'Sub', 'Action', '# AD', 'Het AD', 'Hom AD', 'Het:Hom AD',
+                  '# HC', 'Het HC', 'Hom HC', 'Het:Hom HC']
 
-    df.to_csv(dirc + '216_all_mutation_count_APOE3_withEA.csv', sep=',', index=False)
-
+    # df.to_csv(dirc + '216_all_mutation_count_APOE3_withEA.csv', sep=',', index=False)
+    df.to_csv(dirc + '216_all_mutation_count_all_except_APOE24_withEA.csv', sep=',', index=False)
     # hc_all = 1657   # only 3/3 HC
     # ad_all = 1346   # only 3/3 AD
-    hc_all = 287
-    ad_all = 269
+    # hc_all = 287
+    # ad_all = 269
+    hc_all = 482
+    ad_all = 466
 
-    outputFile = dirc + '216genes_mutation_count_APOE3_withEA_OR_CI_clean2.csv'
     # outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE3_withEA_OR_CI_clean.csv'
+    # outputFile = dirc + '216genes_mutation_count_APOE3_withEA_OR_CI_clean2.csv'
+    outputFile = dirc + '216genes_mutation_count_all_except_APOE24_withEA_OR_CI_clean2.csv'
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter=',')
         writer.writerow(['Gene', 'Sub', 'Action', 'Het:Hom Case', 'Het:Hom Control', 'Het_OR', 'Het_CI', 'Het_p-value',

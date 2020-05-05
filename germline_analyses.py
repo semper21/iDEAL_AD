@@ -5,6 +5,7 @@ Created on Apr 6, 2020
 '''
 
 import pandas as pd
+import scipy.stats as stats
 
 def delNoStr(current_list):
     temp_list = []
@@ -68,6 +69,11 @@ def get_list_from_csv(input_file, column_name, sep):
     return l
 
 
+def enrichment_test(list1, list2, total):
+    overlap = list(set(list1).intersection(list2))
+    p = stats.hypergeom.sf(int(len(overlap)) - 1, int(total), int(len(list1)), int(len(list2)))
+
+    return len(overlap), p, overlap
 
 if __name__ == '__main__':
     pass
