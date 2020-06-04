@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # these are gene x patient matrices
     ADe2 = get_matrix_subset(output_folder, 'sum_ea_matrix_ADe2.tsv', gene_list, sep='\t', index_col=0)
-    # ADe4 = get_matrix_subset(output_folder, 'sum_ea_matrix_ADe4.tsv', gene_list, sep='\t', index_col=0)
+    #ADe4 = get_matrix_subset(output_folder, 'sum_ea_matrix_ADe4.tsv', gene_list, sep='\t', index_col=0)
     HCe4 = get_matrix_subset(output_folder, 'sum_ea_matrix_HCe4.tsv', gene_list, sep='\t', index_col=0)
     # HCe2 = get_matrix_subset(output_folder, 'sum_ea_matrix_HCe2.tsv', gene_list, sep='\t', index_col=0)
 
@@ -134,15 +134,14 @@ if __name__ == '__main__':
 
         """This is for drawing individual plots"""
         viz = plot_roc_curve(classifier, x[test], y[test],
-                             name='ROC fold {}'.format(i),
+                             name='Set {}'.format(i+1),
                              alpha=0.3, lw=1, ax=ax)
         interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
         interp_tpr[0] = 0.0
         tprs.append(interp_tpr)
         aucs.append(viz.roc_auc)
         print(i)
-    fig, ax = plt.subplots()
-    plt.clf()
+    # fig, ax = plt.subplots()
     
     """For feature importance calculation"""
     # feature_importance = np.asarray(feature_importance).T
@@ -153,8 +152,7 @@ if __name__ == '__main__':
     # df.to_csv(output_folder + "FI_SVC_Adaboost_lr0.01_n100_k5_nr5.tsv", sep='\t', index=False)
 
 
-    ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r',
-            label='Random', alpha=.8)
+    ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', alpha=.8)
 
     mean_tpr = np.mean(tprs, axis=0)
     mean_tpr[-1] = 1.0
@@ -173,4 +171,4 @@ if __name__ == '__main__':
     ax.legend(loc="lower right")
     # plt.gca().set_aspect('equal', adjustable='box')
     # plt.show()
-    plt.savefig(output_folder + 'FINAL_ROC_SVC_Adaboost_' + comparison + '_lr0.01_n100_k5.png', dpi=300)
+    plt.savefig(output_folder + 'FINALFIGURE_ROC_SVC_Adaboost_' + comparison + '_lr0.01_n100_k5.png', dpi=300)
