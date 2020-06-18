@@ -29,16 +29,16 @@ def processPhenoFile(input_file):
     return caseList, controlList
 
 if __name__ == '__main__':
-    target_directory = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/' #directory on rosinante
-    #target_directory = '/media/vision/ExtraDrive1/Exome/ADSP/' #my local machine
+    # target_directory = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/' #directory on rosinante
+    target_directory = '/media/vision/ExtraDrive1/Exome/ADSP_discovery/' #my local machine
     phenotype_file = target_directory + 'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
 
     caseList, controlList = processPhenoFile(phenotype_file)
 
     srcglob = glob.glob(target_directory + 'after_QCfilter_jamie/*.trauma')
 
-    os.mkdir(target_directory + 'Case/')
-    os.mkdir(target_directory + 'Control/')
+    # os.mkdir(target_directory + 'Case/')
+    # os.mkdir(target_directory + 'Control/')
     os.mkdir(target_directory + 'all_short_name/')  # This was needed to more conveniently match patient IDs from
                                                     # the phenotype file
 
@@ -47,12 +47,13 @@ if __name__ == '__main__':
         pt = src.rsplit('/', 1)[1].split('-')[0:3]
         pt = '-'.join(pt)
         print(pt)
+        """
         if pt in caseList:
             os.symlink(src, target_directory + 'Case/' + pt)
         elif pt in controlList:
             os.symlink(src, target_directory + 'Control/' + pt)
         else:
             print('Patient neither case nor control')
-
+        """
         os.symlink(src, target_directory + 'all_short_name/' + pt)
     print(str(len(caseList) + len(controlList)) + ' out of 5686')
