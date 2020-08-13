@@ -25,9 +25,9 @@ if __name__ == '__main__':
     discovery_folder = str(Path().absolute()) + '/output/'
     validation_folder =  str(Path().absolute()) + '/output_ADSP_extension/'
 
-
-    gene_file = discovery_folder + 'iDEAL_og_genelist.txt'
-    # gene_file = discovery_folder + 'og_hit_genes.txt'
+    input_folder = str(Path().absolute()) + '/input/'
+    gene_file = input_folder + 'iDEAL_genelist.txt'
+    # gene_file = discovery_folder + 'hit_genes.txt'
     df_gene = pd.read_csv(gene_file, index_col=None)
     gene_list = df_gene['Gene'].values.tolist()
     """

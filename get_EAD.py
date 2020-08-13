@@ -3,7 +3,6 @@ Created on June 4, 2020
 
 @author: ywkim
 
-!TODO: Written in python 2.7, needs to be edited
 
 """
 

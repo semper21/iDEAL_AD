@@ -18,9 +18,10 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.svm import SVC
 
 if __name__ == '__main__':
+    input_folder = str(Path().absolute()) + '/input/'
     output_folder =  str(Path().absolute()) + '/output/'
 
-    gene_file = output_folder + 'iDEAL_genelist.txt'
+    gene_file = input_folder + 'iDEAL_genelist.txt'
     gene_list = get_list_from_csv(gene_file, 'Gene', sep='\t')
 
     # these are gene x patient matrices

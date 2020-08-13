@@ -152,6 +152,7 @@ if __name__ == '__main__':
     cohort_name = 'ADSP_extension'
     input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/' + cohort_name + '/'  # where Rosinante is mounted on
 
+    input_folder_ = str(Path().absolute()) + '/input/'
     output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/'  # for now the output files will be stored locally
 
     phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'
@@ -190,7 +191,7 @@ if __name__ == '__main__':
     homo_count_ad = {}
     homo_count_hc = {}
 
-    gene_file = output_folder + 'iDEAL_og_genelist.txt'
+    gene_file = input_folder_ + 'iDEAL_genelist.txt'
     dfGene = pd.read_csv(gene_file, index_col=None)
 
     gene_list = dfGene['Gene'].values.tolist()
