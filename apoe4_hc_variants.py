@@ -7,6 +7,7 @@ Created on Aug 13, 2020
 import os
 import csv
 from pathlib import Path
+from collections import Counter
 from germline_analyses import get_list_from_csv
 
 
@@ -58,7 +59,7 @@ def get_phenotype(pheno_file):
                 pass
 
     # return AD2_hom, AD2_het, AD3, AD4_hom, AD4_het, HC2_hom, HC2_het, HC3, HC4_hom, HC4_het
-    return AD2_hom
+    return AD2_hom, HC2_hom, HC2_het, HC4_hom, AD4_hom, AD4_het
 
 
 def delNoStr(currList):
@@ -121,37 +122,44 @@ if __name__ == '__main__':
     input_folder = str(Path().absolute()) + '/input/'
     output_folder = str(Path().absolute()) + '/output/'
 
-    gene_file = input_folder + 'iDEAL_genelist.txt'
+    # gene_file = input_folder + 'iDEAL_genelist.txt'
+    # gene_file = input_folder + 'top_pathogenic.txt'
+    gene_file = input_folder + 'top_protective.txt'
     gene_list = get_list_from_csv(gene_file, 'Gene', sep='\t')
 
     phenotype_file = '/media/vision/ExtraDrive1/Exome/ADSP_discovery/' \
                      'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
 
-    patient_list = get_phenotype(phenotype_file)
+    patient_lists = get_phenotype(phenotype_file)[-3:]
+    # labels = ['AD2_hom', 'HC2_hom', 'HC2_het']
+    labels = ['HC4_hom', 'AD4_hom', 'AD4_het']
 
     trauma_folder = '/media/vision/ExtraDrive1/Exome/ADSP_discovery/all_short_name/'
 
-    variant_dict = {}
+    for idx, patient_list in enumerate(patient_lists):
+        variant_dict = {}
+        ptCounter = 0
+        label = labels[idx]
+        for filename in os.listdir(trauma_folder):
+            ptFile = (os.path.join(trauma_folder, filename))
+            if filename in patient_list:
+                extract_variants(ptFile, variant_dict, gene_list)
+            ptCounter += 1
+            print(ptCounter)
 
-    ptCounter = 0
-    for filename in os.listdir(trauma_folder):
-        ptFile = (os.path.join(trauma_folder, filename))
-        if filename in patient_list:
-            extract_variants(ptFile, variant_dict, gene_list)
-        ptCounter += 1
-        print(ptCounter)
 
+        output_file = output_folder + label + '_substitution_list.txt'
 
-    output_file = output_folder + 'APOE22_AD_substitution_list.txt'
-
-    with open(output_file, 'w') as f:
-        writer = csv.writer(f, delimiter='\t')
-        writer.writerow(['Gene', 'Sub'])
-        for gene in gene_list:
-            try:
-                for sub in variant_dict[gene]:
-                    info = [gene, sub]
-                    writer.writerow(info)
-            except KeyError:
-                pass
+        with open(output_file, 'w') as f:
+            writer = csv.writer(f, delimiter='\t')
+            writer.writerow(['Gene', 'Sub', 'Count'])
+            flag = []
+            for gene in gene_list:
+                try:
+                    sub_counter = Counter(variant_dict[gene])
+                    for sub in sub_counter:
+                        info = [gene, sub, sub_counter[sub]]
+                        writer.writerow(info)
+                except KeyError:
+                    pass
 
