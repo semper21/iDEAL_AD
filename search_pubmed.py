@@ -48,9 +48,9 @@ if __name__ == '__main__':
     outputFile = output_folder + 'iDEAL_drugs_pubmed.txt'
     with open(outputFile, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
-        writer.writerow(['Drug', 'PMID'])
+        writer.writerow(['Drug', 'PMID_count', 'PMID'])
         for idx, drug in enumerate(drugs_list):
             print(drug)
             id_list = search(drug, 0)['IdList']
 
-            writer.writerow([drug, id_list])
+            writer.writerow([drug, len(id_list), id_list])
