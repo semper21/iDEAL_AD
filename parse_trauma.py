@@ -5,6 +5,7 @@ Created on Mar 3, 2020
 '''
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -101,7 +102,7 @@ def string_to_ea(current_list):
     return temp_list
 
 
-def fill_matrix(trauma_file, ptidx):
+def fill_matrix(trauma_file, ptidx, cohort):
     """
 
     :param trauma_file: each trauma file contains germline variant info for each patient
@@ -125,23 +126,24 @@ def fill_matrix(trauma_file, ptidx):
 
         if gene == '':
             continue
-        """ # Only needed for APSP_discovery
-        s = '-'
-        mut = (chro, pos, ref, alt)
-        substitution = s.join(mut)
+        if cohort == 'ADSP_discovery':
+            # Only needed for APSP_discovery
+            s = '-'
+            mut = (chro, pos, ref, alt)
+            substitution = s.join(mut)
 
-        try:
-            qual = dict_qc[substitution]
-        except KeyError:
-            qual = 'non-PASS'
-        
-        if qual == 'non-PASS':
-            continue
-        elif qual == 'PASS':
-            pass
-        else:
-            print('ERROR')
-        """
+            try:
+                qual = dict_qc[substitution]
+            except KeyError:
+                qual = 'non-PASS'
+
+            if qual == 'non-PASS':
+                continue
+            elif qual == 'PASS':
+                pass
+            else:
+                print('ERROR')
+
         if sub == '-':  # no indels
             continue
         if gene == 'APOE' and sub == 'C130R':
@@ -186,28 +188,32 @@ def fill_matrix(trauma_file, ptidx):
 
 
 if __name__ == '__main__':
-    # input_folder = '/Users/ywkim/rosinante/shared/ADSP/iDEAL_input_folder/' # this would change depending on
-    cohort_name = 'ADSP_extension'
+    cohort_name = 'ADSP_discovery'
+    # cohort_name = 'ADSP_extension'
     input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/' + cohort_name + '/'  # where Rosinante is mounted on
 
     output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/'  # for now the output files will be stored locally
 
-    """
     # FOR ADSP_DISCOVERY
-    quality_file = input_folder + 'snvquality_detailed_jamie.csv'  # generated using the raw data from dbgap
-    dict_qc = get_quality(quality_file)
+    if cohort_name == 'ADSP_discovery':
+        quality_file = input_folder + 'snvquality_detailed_jamie.csv'  # generated using the raw data from dbgap
+        dict_qc = get_quality(quality_file)
 
-    phenotype_file = input_folder + 'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
-    ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype(phenotype_file)
+        phenotype_file = input_folder + 'phs000572.v7.pht005179.v1.p4.c1.CaseControlEnrichedPhenotypesWES_y1.HMB-IRB.txt'
+        ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype(phenotype_file)
 
-    trauma_folder = input_folder + 'all_short_name/'
-    """
+        trauma_folder = input_folder + 'all_short_name/'
 
     # FOR ADSP_EXTENSION
-    phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'  #TODO
-    ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype_from_excel(phenotype_file)
+    elif cohort_name == 'ADSP_extension':
+        phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'
+        ADe2, ADe3, ADe4, HCe2, HCe3, HCe4 = get_phenotype_from_excel(phenotype_file)
 
-    trauma_folder = input_folder + 'Actions/'
+        trauma_folder = input_folder + 'Actions/'
+
+    else:
+        print('input folder invalid')
+        sys.exit()
 
     df_genes = pd.read_csv(output_folder + 'total_gene_list.csv', sep=',', index_col=None)
     total_gene_list = df_genes['Gene'].values.tolist()
@@ -220,9 +226,14 @@ if __name__ == '__main__':
         matrix_sum = np.zeros((len(total_gene_list), len(pt_list)))
         counter = 0
         for pt_idx, pt_id in enumerate(pt_list):
-            # pt_file = os.path.join(trauma_folder, pt_id)
-            pt_file = os.path.join(trauma_folder, pt_id + '.trauma')
-            fill_matrix(pt_file, pt_idx)
+            if cohort_name == 'ADSP_discovery':
+                pt_file = os.path.join(trauma_folder, pt_id)
+            elif cohort_name == 'ADSP_extension':
+                pt_file = os.path.join(trauma_folder, pt_id + '.trauma')
+            else:
+                print('input folder invalid')
+                sys.exit()
+            fill_matrix(pt_file, pt_idx, cohort_name)
             counter += 1
 
             print(group, counter)
