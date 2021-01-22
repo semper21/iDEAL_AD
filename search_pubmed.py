@@ -40,7 +40,7 @@ def search(query, rs):
 
 if __name__ == '__main__':
     input_folder = str(Path().absolute()) + '/input/'
-    output_folder = str(Path().absolute()) + '/output/'
+    output_folder = str(Path().absolute()) + '/output_ADSP_discovery/'
 
     drugs_file = input_folder + 'iDEAL_drugs_list.txt'
     drugs_list = get_list_from_csv(drugs_file, 'Drug', sep='\t')

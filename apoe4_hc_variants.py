@@ -120,7 +120,7 @@ def extract_variants(file_, dict_, genelist_):
 
 if __name__ == '__main__':
     input_folder = str(Path().absolute()) + '/input/'
-    output_folder = str(Path().absolute()) + '/output/'
+    output_folder = str(Path().absolute()) + '/output_ADSP_discovery/'
 
     # gene_file = input_folder + 'iDEAL_genelist.txt'
     # gene_file = input_folder + 'top_pathogenic.txt'

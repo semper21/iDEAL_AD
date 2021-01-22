@@ -20,7 +20,7 @@ from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-    output_folder =  str(Path().absolute()) + '/output/'
+    output_folder =  str(Path().absolute()) + '/output_ADSP_discovery/'
 
     gene_file = output_folder + 'iDEAL_genelist.txt'
     comparison = 'APOE2_AD_v_APOE4_HC'

@@ -10,7 +10,7 @@ from pathlib import Path
 
 if __name__ == '__main__':
     input_folder = str(Path().absolute()) + '/input/'
-    output_folder = str(Path().absolute()) + '/output/'
+    output_folder = str(Path().absolute()) + '/output_ADSP_discovery/'
 
     ideal_file = input_folder + 'iDEAL_genelist.txt'
     df = pd.read_csv(ideal_file, sep='\t')

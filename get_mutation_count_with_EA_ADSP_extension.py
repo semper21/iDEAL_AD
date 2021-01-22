@@ -153,7 +153,7 @@ if __name__ == '__main__':
     input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/' + cohort_name + '/'  # where Rosinante is mounted on
 
     input_folder_ = str(Path().absolute()) + '/input/'
-    output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/'  # for now the output files will be stored locally
+    output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/'  # for now the output_ADSP_discovery files will be stored locally
 
     phenotype_file = input_folder + 'ADSP_extension_phenotypes.xlsx'
     apoe2_ad, apoe3_ad, ADe4, HCe2, apoe3_hc, apoe4_hc = get_phenotype_from_excel(phenotype_file)

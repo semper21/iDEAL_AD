@@ -192,8 +192,8 @@ if __name__ == '__main__':
     # cohort_name = 'ADSP_extension'
     input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/' + cohort_name + '/'  # where Rosinante is mounted on
 
-    output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/'  # for now the output files will be stored locally
-
+    output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/' # for now the output files
+                                                                            # will be stored locally
     # FOR ADSP_DISCOVERY
     if cohort_name == 'ADSP_discovery':
         quality_file = input_folder + 'snvquality_detailed_jamie.csv'  # generated using the raw data from dbgap

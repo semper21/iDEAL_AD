@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None   # this doesn't raise SettingWithCopyWarning
 import seaborn as sns
+from sys import argv
 from pathlib import Path
 from random import shuffle
 import matplotlib.pyplot as plt
@@ -134,9 +135,9 @@ def lin_reg_of_residuals(x_list, y_list, random_ideal_dict_, test_type):
 
 
 if __name__ == '__main__':
-    # input_folder = '/Users/ywkim/rosinante/ADSP/iDEAL_input_folder/' # This would change depending on
-    # input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'   # where you have Rosinante mounted on
-    output_folder = str(Path().absolute()) + '/output_ADSP_extension/'  # For now the output files will be stored locally
+    cohort_name = 'ADSP_extension'
+    output_folder = str(Path().absolute()) + '/output_' + cohort_name + '/' # For now the output_ADSP_discovery files
+                                                                            # will be stored locally
 
     df_ADe2_sum = get_matrix_as_df(output_folder, 'sum_ea_matrix_ADe2.tsv', sep='\t', index_col=0)
     df_HCe4_sum = get_matrix_as_df(output_folder, 'sum_ea_matrix_HCe4.tsv', sep='\t', index_col=0)
@@ -218,11 +219,13 @@ if __name__ == '__main__':
             std = np.std(random_ideal_list)
             xr = ideal_list[idx]
             z = (xr - mean) / std
-            # new_r
-            # for d in random_ideal_list:
-            #    new_r.append(float('{0:.2f}'.format(d)))
-            # info = ([gene, float('{0:.2f}'.format(x)), float('{0:.2f}'.format(mean)),
-            #          float('{0:.2f}'.format(std)), float('{0:.2f}'.format(z)), new_r])
-
+            """
+            # To make the output pretty:
+            new_r = []
+            for d in random_ideal_list:
+                new_r.append(float('{0:.2f}'.format(d)))
+            info = ([gene, float('{0:.2f}'.format(x)), float('{0:.2f}'.format(mean)),
+                     float('{0:.2f}'.format(std)), float('{0:.2f}'.format(z)), new_r])
+            """
             info = ([gene, xr, mean, std, z, random_ideal_list])
             writer.writerow(info)

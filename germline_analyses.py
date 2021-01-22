@@ -26,7 +26,7 @@ def matrix_out(matrix_, pt_list_, gene_list_, output_dirc, name):
     :param matrix_: matrix
     :param pt_list_: patient list
     :param gene_list_: gene list
-    :param output_dirc: output directory
+    :param output_dirc: output_ADSP_discovery directory
     :param name: file name
     :return: -
     """
@@ -39,7 +39,7 @@ def output_dict(any_dict, output_dirc, filename, sep):
     """ Outputs any dictionary to a file
 
     :param any_dict: any dictionary
-    :param output_dirc: output directory
+    :param output_dirc: output_ADSP_discovery directory
     :param name: file name
     :return: -
     """

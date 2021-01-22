@@ -55,7 +55,7 @@ if __name__ == '__main__':
     sub_list = list(callset['variants/gene'][:])
     gene_list = list(callset['variants/gene'][:])
 
-    total_gene_list = list(set(gene_list))  # TODO: This will have to be output-ed
+    total_gene_list = list(set(gene_list))  # TODO: This will have to be output_ADSP_discovery-ed
 
     gt_zarr = callset['calldata/GT']
     gt = allel.GenotypeArray(gt_zarr)   # (n_variant, n_sample, ploidy)

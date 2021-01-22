@@ -17,7 +17,7 @@ from sklearn.cluster import KMeans
 
 if __name__ == '__main__':
     input_folder = str(Path().absolute()) + '/input/'
-    output_folder =  str(Path().absolute()) + '/output/'
+    output_folder =  str(Path().absolute()) + '/output_ADSP_discovery/'
 
     phenotype_file = input_folder + 'ADSP_phenotype.tsv'
 

@@ -197,7 +197,7 @@ def performKS_Test(caseList, controlList, selection, files):
 
 if __name__ == '__main__':
     input_folder = str(Path().absolute()) + '/input/'
-    output_folder = str(Path().absolute()) + '/output/'
+    output_folder = str(Path().absolute()) + '/output_ADSP_discovery/'
 
     # gene_file = input_folder + 'protective.txt'
     # gene_file = input_folder + 'iDEAL_genelist.txt'

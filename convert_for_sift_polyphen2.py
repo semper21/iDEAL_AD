@@ -64,7 +64,7 @@ def output_variant_info(name, output_lists):
 
 if __name__ == '__main__':
     input_folder = str(Path().absolute()) + '/input/'
-    output_folder = str(Path().absolute()) + '/output/'
+    output_folder = str(Path().absolute()) + '/output_ADSP_discovery/'
 
     variant_file = input_folder + 'top_protective_variants.txt'
     # variant_file = input_folder + 'top_pathogenic_variants.txt'

@@ -22,7 +22,7 @@ from sklearn.model_selection import train_test_split
 
 
 if __name__ == '__main__':
-    discovery_folder = str(Path().absolute()) + '/output/'
+    discovery_folder = str(Path().absolute()) + '/output_ADSP_discovery/'
     validation_folder =  str(Path().absolute()) + '/output_ADSP_extension/'
 
     input_folder = str(Path().absolute()) + '/input/'

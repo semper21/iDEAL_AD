@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # input_folder = '/Users/ywkim/rosinante/shared/ADSP/iDEAL_input_folder/' # this would change depending on
     # input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/'  # where you have Rosinante mounted on
     input_folder = '/lab/rosinante/shared/ADSP/iDEAL_input_folder/ADSP_extension/'
-    output_folder = str(Path().absolute()) + '/output_ADSP_extension/'  # for now the output files will be stored locally
+    output_folder = str(Path().absolute()) + '/output_ADSP_extension/'  # for now the output_ADSP_discovery files will be stored locally
 
     """
     Need to get the list of all the genes sequenced/observed

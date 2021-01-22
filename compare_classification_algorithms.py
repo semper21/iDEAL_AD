@@ -29,7 +29,7 @@ from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
 
 if __name__ == '__main__':
-    output_folder =  str(Path().absolute()) + '/output/'
+    output_folder =  str(Path().absolute()) + '/output_ADSP_discovery/'
 
     gene_file = output_folder + 'iDEAL_genelist.txt'
     gene_list = get_list_from_csv(gene_file, 'Gene', sep='\t')
