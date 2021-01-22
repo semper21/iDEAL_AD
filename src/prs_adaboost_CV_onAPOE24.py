@@ -4,6 +4,7 @@ Created on May 11, 2020
 @author: ywkim
 '''
 import numpy as np
+import pandas as pd
 from pathlib import Path
 
 from src.germline_analyses import get_matrix_subset, get_list_from_csv
@@ -14,6 +15,7 @@ from sklearn.svm import SVC
 from sklearn.metrics import auc
 from sklearn.metrics import plot_roc_curve
 from sklearn.model_selection import StratifiedKFold
+from sklearn.inspection import permutation_importance
 
 import matplotlib.pyplot as plt
 
@@ -49,6 +51,7 @@ if __name__ == '__main__':
     svc = SVC(probability=True, kernel='linear')
 
     """
+    # hyperparameter search
     learning_rates = [0.01, 0.1]
     n_estimators = [100, 200]
 
@@ -116,7 +119,6 @@ if __name__ == '__main__':
 
     classifier = AdaBoostClassifier(base_estimator=svc, n_estimators=100,
                                     learning_rate=0.01, random_state=0)
-    # classifier = AdaBoostClassifier(n_estimators=100, learning_rate=0.01, random_state=0)
 
     tprs = []
     aucs = []
@@ -126,9 +128,9 @@ if __name__ == '__main__':
     for i, (train, test) in enumerate(cv.split(x, y)):
         clf = classifier.fit(x[train], y[train])
         """For feature importance calculation"""
-        # results = permutation_importance(clf, x[test], y[test], random_state = 0)
-        # importance = results.importances_mean
-        # feature_importance.append(importance)
+        results = permutation_importance(clf, x[test], y[test], random_state = 0)
+        importance = results.importances_mean
+        feature_importance.append(importance)
 
         """This is for drawing individual plots"""
         viz = plot_roc_curve(classifier, x[test], y[test],
@@ -142,12 +144,12 @@ if __name__ == '__main__':
     # fig, ax = plt.subplots()
     
     """For feature importance calculation"""
-    # feature_importance = np.asarray(feature_importance).T
-    # mean_feature_importance = np.mean(feature_importance, axis=1)
-    # std_feature_importance = np.std(feature_importance, axis=1)
-    # df = pd.DataFrame({'Gene': gene_list, 'Importance_scores': list(feature_importance),
-    #                    'Mean': list(mean_feature_importance), 'Std': list(std_feature_importance)})
-    # df.to_csv(output_folder + "FI_SVC_Adaboost_lr0.01_n100_k5_nr5.tsv", sep='\t', index=False)
+    feature_importance = np.asarray(feature_importance).T
+    mean_feature_importance = np.mean(feature_importance, axis=1)
+    std_feature_importance = np.std(feature_importance, axis=1)
+    df = pd.DataFrame({'Gene': gene_list, 'Importance_scores': list(feature_importance),
+                       'Mean': list(mean_feature_importance), 'Std': list(std_feature_importance)})
+    df.to_csv(output_folder + "FI_SVC_Adaboost_lr0.01_n100_k5_nr5.tsv", sep='\t', index=False)
 
 
     ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r', alpha=.8)
@@ -167,6 +169,5 @@ if __name__ == '__main__':
 
     ax.set(xlim=[-0.05, 1.05], ylim=[-0.05, 1.05])
     ax.legend(loc="lower right")
-    # plt.gca().set_aspect('equal', adjustable='box')
-    # plt.show()
+
     plt.savefig(output_folder + 'FINALFIGURE_ROC_SVC_Adaboost_' + comparison + '_lr0.01_n100_k5.png', dpi=300)
