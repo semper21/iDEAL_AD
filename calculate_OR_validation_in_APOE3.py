@@ -3,7 +3,7 @@ Created on Aug 23, 2019
 
 @author: ywkim
 
-10/24/29
+10/24/19
 -Output file is more cleaned up
 -Action: average (if more than one per variant)
 -CI format: x.xx

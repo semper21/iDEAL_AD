@@ -9,7 +9,7 @@ Created on Aug 23, 2019
 -P-value differs only by little (E-6)
 -Note: CI should not include 1 even if p-value < 0.05
 
-10/24/29
+10/24/19
 -Output file is more cleaned up
 -Action: average (if more than one per variant)
 -CI format: x.xx
