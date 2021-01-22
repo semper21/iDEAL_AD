@@ -3,7 +3,7 @@ Created on Oct 24, 2019
 
 @author: ywkim
 
-Ismael wants to only use GWAS genes that interact with IDEAL genes as "positive control."
+Using only GWAS genes that interact with IDEAL genes as "positive control."
 """
 
 import numpy as np
@@ -51,9 +51,7 @@ def count_edges(test_list, truth_list, df_, cutoff, gene_type):
 
 
 if __name__ == '__main__':
-    #dirc = argv[1] # STRING_analysis/
-    dirc = '/Users/ywkim/Desktop/Projects/GermlineProject/ADSP/RVEA/new2018/' \
-           'RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/STRING_analysis/'
+    dirc = argv[1] # STRING_analysis/
 
     """216 genes"""
     iDEAL_file = dirc.rsplit('/',2)[0] + '/iDEAL_genelist.txt'
@@ -94,10 +92,9 @@ if __name__ == '__main__':
     #embed()
 
     """GWAS genes"""
-    # gene_types = ['Bait1', 'Bait2', 'Bait3', 'Bait4']
-    #confidences = [400, 450, 700, 400]
-    gene_types = ['Bait5']
-    confidences = [700]
+    gene_types = ['Bait1', 'Bait2', 'Bait3', 'Bait4', 'Bait5']
+    confidences = [400, 450, 700, 400, 700]
+
     truth_file = dirc.rsplit('/',2)[0] + '/216_updated/Bait_GWAS_genes.xlsx'
     for idx, gene_type in enumerate(gene_types):
         df_gwas = pd.read_excel(truth_file, sheet_name=gene_type)

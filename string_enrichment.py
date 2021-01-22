@@ -29,9 +29,7 @@ def count_edges(test_list, truth_list, df_):
 
 
 if __name__ == '__main__':
-    #dirc = argv[1] # STRING_analysis/
-    dirc = '/Users/ywkim/Desktop/Projects/GermlineProject/ADSP/RVEA/new2018/' \
-           'RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/STRING_analysis/'
+    dirc = argv[1] # STRING_analysis/
 
     """216 genes"""
     iDEAL_file = dirc.rsplit('/',2)[0] + '/iDEAL_genelist.txt'
