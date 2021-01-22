@@ -6,10 +6,9 @@ Created on Aug 14, 2020
 
 import csv
 import time
-import pandas as pd
 from Bio import Entrez
 from pathlib import Path
-from germline_analyses import get_list_from_csv
+from src.germline_analyses import get_list_from_csv
 from urllib.error import HTTPError
 
 

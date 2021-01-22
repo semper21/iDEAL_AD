@@ -5,9 +5,8 @@ Created on May 11, 2020
 '''
 import numpy as np
 from pathlib import Path
-import pandas as pd
 
-from germline_analyses import get_matrix_subset, get_list_from_csv
+from src.germline_analyses import get_matrix_subset, get_list_from_csv
 
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.svm import SVC
@@ -15,7 +14,6 @@ from sklearn.svm import SVC
 from sklearn.metrics import auc
 from sklearn.metrics import plot_roc_curve
 from sklearn.model_selection import StratifiedKFold
-from sklearn.inspection import permutation_importance
 
 import matplotlib.pyplot as plt
 

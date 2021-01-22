@@ -11,11 +11,10 @@ import numpy as np
 import pandas as pd
 pd.options.mode.chained_assignment = None   # this doesn't raise SettingWithCopyWarning
 import seaborn as sns
-from sys import argv
 from pathlib import Path
 from random import shuffle
 import matplotlib.pyplot as plt
-from germline_analyses import get_matrix_as_df, output_dict
+from src.germline_analyses import get_matrix_as_df, output_dict
 from sklearn.linear_model import LinearRegression
 
 

@@ -5,10 +5,9 @@ Created on Aug 18, 2020
 """
 
 import os
-import sys
 import csv
 from pathlib import Path
-from germline_analyses import get_list_from_csv
+from src.germline_analyses import get_list_from_csv
 
 
 def get_variant_info(file_, gene_, variant_, flag):

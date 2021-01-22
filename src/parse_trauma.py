@@ -11,7 +11,7 @@ import pandas as pd
 from pathlib import Path
 from collections import Counter
 
-from germline_analyses import matrix_out, output_dict
+from src.germline_analyses import matrix_out, output_dict
 
 def get_quality(input_file):
     dict_ = {}

@@ -3,16 +3,11 @@ Created on May 12, 2020
 
 @author: ywkim
 '''
-import numpy as np
 import pandas as pd
-import seaborn as sns
 from pathlib import Path
-import matplotlib.pyplot as plt
 
-from germline_analyses import get_matrix_subset, get_list_from_csv
+from src.germline_analyses import get_matrix_subset, get_list_from_csv
 
-from sklearn.cluster import DBSCAN
-from sklearn.cluster import SpectralClustering
 from sklearn.cluster import KMeans
 
 if __name__ == '__main__':

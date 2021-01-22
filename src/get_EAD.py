@@ -11,10 +11,9 @@ import numpy as np
 import seaborn as sns
 from scipy.stats import mstats
 from matplotlib import pyplot as plt
-from itertools import zip_longest
 import os
 
-from germline_analyses import get_list_from_csv
+from src.germline_analyses import get_list_from_csv
 
 
 

@@ -5,7 +5,7 @@ Created on May 5, 2020
 '''
 
 from sys import argv
-from germline_analyses import get_list_from_csv, enrichment_test
+from src.germline_analyses import get_list_from_csv, enrichment_test
 
 
 if __name__ == '__main__':

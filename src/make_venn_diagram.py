@@ -6,7 +6,7 @@ Created on Apr 21, 2020
 
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2, venn2_circles
-from germline_analyses import get_list_from_csv
+from src.germline_analyses import get_list_from_csv
 
 def venn_diagram(list1, list2, label1, label2, title, filename):
     venn = venn2([set(list1), set(list2)], set_labels=(label1, label2), set_colors=('red', 'skyblue'), alpha=0.7)
