@@ -24,8 +24,6 @@ if __name__ == '__main__':
 
     gene_file = output_folder + 'iDEAL_genelist.txt'
     comparison = 'APOE2_AD_v_APOE4_HC'
-    # comparison = 'APOE2_ADvHC'
-    # comparison = 'APOE4_HCvAD'
 
     # gene_file = output_folder + 'pathogenic.txt'
     # comparison = 'APOE2_ADvHC_pathogenic'
@@ -37,9 +35,9 @@ if __name__ == '__main__':
 
     # these are gene x patient matrices
     ADe2 = get_matrix_subset(output_folder, 'sum_ea_matrix_ADe2.tsv', gene_list, sep='\t', index_col=0)
-    #ADe4 = get_matrix_subset(output_folder, 'sum_ea_matrix_ADe4.tsv', gene_list, sep='\t', index_col=0)
+    ADe4 = get_matrix_subset(output_folder, 'sum_ea_matrix_ADe4.tsv', gene_list, sep='\t', index_col=0)
     HCe4 = get_matrix_subset(output_folder, 'sum_ea_matrix_HCe4.tsv', gene_list, sep='\t', index_col=0)
-    # HCe2 = get_matrix_subset(output_folder, 'sum_ea_matrix_HCe2.tsv', gene_list, sep='\t', index_col=0)
+    HCe2 = get_matrix_subset(output_folder, 'sum_ea_matrix_HCe2.tsv', gene_list, sep='\t', index_col=0)
 
     x = np.vstack((ADe2.T, HCe4.T))
     y = np.asarray([1] * len(ADe2.T) + [0] * len(HCe4.T))
@@ -49,7 +47,6 @@ if __name__ == '__main__':
     cv = StratifiedKFold(n_splits=5)
 
     svc = SVC(probability=True, kernel='linear')
-
 
     # hyperparameter search
     learning_rates = [0.01, 0.1]
