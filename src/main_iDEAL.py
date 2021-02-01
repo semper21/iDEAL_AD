@@ -1,6 +1,5 @@
 '''
 Created on Jan 28, 2020
-(Started pretty much re-writing on Apr 8, 2020)
 
 @author: ywkim
 '''
@@ -19,8 +18,15 @@ from sklearn.linear_model import LinearRegression
 
 
 def get_residual(a_, c_, x_, y_):
-    # ax+by+c=0 (b=-1)
-    # r = ax-y+c/sqrt(a^2+b^2)
+    """
+    ax+by+c=0 (b=-1)
+    r = ax-y+c/sqrt(a^2+b^2)
+    :param a_: coefficient of x
+    :param c_: constant coefficient
+    :param x_: x
+    :param y_: y
+    :return: residual
+    """
     y_hat = (a_ * x_ + c_)
     r_ = y_ - y_hat
 

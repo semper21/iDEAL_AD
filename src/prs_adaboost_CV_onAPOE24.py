@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     svc = SVC(probability=True, kernel='linear')
 
-    """
+
     # hyperparameter search
     learning_rates = [0.01, 0.1]
     n_estimators = [100, 200]
@@ -59,8 +59,6 @@ if __name__ == '__main__':
         for n in n_estimators:
             classifier = AdaBoostClassifier(base_estimator=svc, n_estimators=n,
                                             learning_rate=lr, random_state=0)
-            # classifier = AdaBoostClassifier(n_estimators=100, learning_rate=0.01, random_state=0)
-
             tprs = []
             aucs = []
             mean_fpr = np.linspace(0, 1, 100)
@@ -68,10 +66,6 @@ if __name__ == '__main__':
             feature_importance = []
             for i, (train, test) in enumerate(cv.split(x, y)):
                 clf = classifier.fit(x[train], y[train])
-                # For feature importance calculation
-                # results = permutation_importance(clf, x[test], y[test], random_state = 0)
-                # importance = results.importances_mean
-                # feature_importance.append(importance)
 
                 viz = plot_roc_curve(classifier, x[test], y[test],
                                      name='ROC fold {}'.format(i),
@@ -81,15 +75,6 @@ if __name__ == '__main__':
                 tprs.append(interp_tpr)
                 aucs.append(viz.roc_auc)
                 print(i)
-
-            # For feature importance calculation
-            # feature_importance = np.asarray(feature_importance).T
-            # mean_feature_importance = np.mean(feature_importance, axis=1)
-            # std_feature_importance = np.std(feature_importance, axis=1)
-            # df = pd.DataFrame({'Gene': gene_list, 'Importance_scores': list(feature_importance),
-            #                    'Mean': list(mean_feature_importance), 'Std': list(std_feature_importance)})
-            # df.to_csv(output_folder + "FI_SVC_Adaboost_lr0.01_n100_k5_nr5.tsv", sep='\t', index=False)
-
 
             ax.plot([0, 1], [0, 1], linestyle='--', lw=2, color='r',
                     label='Chance', alpha=.8)
@@ -109,17 +94,13 @@ if __name__ == '__main__':
 
             ax.set(xlim=[-0.05, 1.05], ylim=[-0.05, 1.05])
             ax.legend(loc="lower right")
-            # plt.gca().set_aspect('equal', adjustable='box')
-            # plt.show()
             plt.savefig(output_folder + 'ROC_SVC_Adaboost_' + comparison + '_lr' +
                         str(lr) + '_n' + str(n) + '_k5.png', dpi=300)
             plt.clf()
-    """
 
-
+    # using the best hyperparameters
     classifier = AdaBoostClassifier(base_estimator=svc, n_estimators=100,
                                     learning_rate=0.01, random_state=0)
-
     tprs = []
     aucs = []
     mean_fpr = np.linspace(0, 1, 100)
@@ -141,7 +122,6 @@ if __name__ == '__main__':
         tprs.append(interp_tpr)
         aucs.append(viz.roc_auc)
         print(i)
-    # fig, ax = plt.subplots()
     
     """For feature importance calculation"""
     feature_importance = np.asarray(feature_importance).T
