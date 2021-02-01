@@ -25,14 +25,17 @@ import statsmodels.api as sm
 
 
 def calculate_or(a, b, c, d):
+    """
+    :param a: affected with mutation
+    :param b: healthy with mutation
+    :param c: affected w/o mutation
+    :param d: healthy w/o mutation
+    :return: odds ratio and p-value
+    """
     table = np.zeros((2, 2))
-    # a: affected with mutation
     table[0][0] = a
-    # b: healthy with mutation
     table[0][1] = b
-    # c: affected w/o mutation
     table[1][0] = c
-    # d: healthy w/o mutation
     table[1][1] = d
 
     oddsratio, pvalue = stats.fisher_exact(table)
@@ -41,14 +44,17 @@ def calculate_or(a, b, c, d):
 
 
 def calculate_or_with_ci(a, b, c, d):
+    """
+    :param a: affected with mutation
+    :param b: healthy with mutation
+    :param c: affected w/o mutation
+    :param d: healthy w/o mutation
+    :return: odds ratio, p-value, and confidence interval
+    """
     table = np.zeros((2, 2))
-    # a: affected with mutation
     table[0][0] = a
-    # b: healthy with mutation
     table[0][1] = b
-    # c: affected w/o mutation
     table[1][0] = c
-    # d: healthy w/o mutation
     table[1][1] = d
 
     or_table = sm.stats.Table2x2(table)
@@ -65,26 +71,20 @@ def calculate_or_with_ci(a, b, c, d):
 
 if __name__ == '__main__':
     """
-    dirc = '/Users/ywkim/Desktop/Projects/GermlineProject/ADSP/RVEA/new2018/' \
-           'RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
+    cohort_name = 'ADSP_discovery'
+    hc_all = 301
+    ad_all = 179
     """
     cohort_name = 'ADSP_extension'
-    dirc = str(Path().absolute()) + '/output_' + cohort_name + '/'
+    hc_all = 133
+    ad_all = 64
 
-    # only 69 genes
-    # fly_hits_file = dirc + 'hit_genes.txt'
-    # df_hits = pd.read_csv(fly_hits_file)
-    # genes = df_hits['Gene'].values.tolist()
+    dirc = str(Path().absolute()) + '/output_' + cohort_name + '/'
 
     # all 216 genes
     ideal_file = dirc + 'iDEAL_genelist.txt'
     df_genes = pd.read_csv(ideal_file)
     genes = df_genes['Gene'].values.tolist()
-
-    """
-    case_file = dirc + '216_updated/216_mutation_count_APOE2-AD.csv'
-    control_file = dirc + '216_updated/216_mutation_count_APOE4-HC.csv'
-    """
 
     case_file = dirc + '216_mutation_count_APOE2-AD.csv'
     control_file = dirc + '216_mutation_count_APOE4-HC.csv'
@@ -98,11 +98,6 @@ if __name__ == '__main__':
                   '# APOE4-HC','Het APOE4-HC', 'Hom APOE4-HC',  'Het:Hom APOE4-HC']
 
     df.to_csv(dirc + '216_all_mutation_count_APOE2v4_withEA.csv', sep=',', index=False)
-
-    # hc_all = 301
-    # ad_all = 179
-    hc_all = 133
-    ad_all = 64
 
     outputFile = dirc + '216hits_all_mutation_count_APOE2v4_withEA_OR_CI_clean2.csv'
     with open(outputFile, 'w') as f:
