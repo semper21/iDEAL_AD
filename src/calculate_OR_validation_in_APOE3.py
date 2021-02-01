@@ -20,14 +20,17 @@ from IPython import embed
 
 
 def calculate_or(a, b, c, d):
+    """
+    :param a: affected with mutation
+    :param b: healthy with mutation
+    :param c: affected w/o mutation
+    :param d: healthy w/o mutation
+    :return: odds ratio and p-value
+    """
     table = np.zeros((2, 2))
-    # a: affected with mutation
     table[0][0] = a
-    # b: healthy with mutation
     table[0][1] = b
-    # c: affected w/o mutation
     table[1][0] = c
-    # d: healthy w/o mutation
     table[1][1] = d
 
     oddsratio, pvalue = stats.fisher_exact(table)
@@ -36,14 +39,17 @@ def calculate_or(a, b, c, d):
 
 
 def calculate_or_with_ci(a, b, c, d):
+    """
+    :param a: affected with mutation
+    :param b: healthy with mutation
+    :param c: affected w/o mutation
+    :param d: healthy w/o mutation
+    :return: odds ratio, p-value, and confidence interval
+    """
     table = np.zeros((2, 2))
-    # a: affected with mutation
     table[0][0] = a
-    # b: healthy with mutation
     table[0][1] = b
-    # c: affected w/o mutation
     table[1][0] = c
-    # d: healthy w/o mutation
     table[1][1] = d
 
     or_table = sm.stats.Table2x2(table)
@@ -57,22 +63,19 @@ def calculate_or_with_ci(a, b, c, d):
 
     return odds_ratio, p_value, confidence_interval
 
-
 if __name__ == '__main__':
     """
-    dirc = '/Users/ywkim/Desktop/Projects/GermlineProject/ADSP/RVEA/new2018/' \
-           'RVEA_BaylorPass_nonHisWhite_2v4_h5py_STARTLOSS100/'
+    cohort_name = 'ADSP_discovery'
+    # hc_all = 1657   # only 3/3 HC
+    # ad_all = 1346   # only 3/3 AD
+    # hc_all = 287
+    # ad_all = 269
     """
     cohort_name = 'ADSP_extension'
+    hc_all = 482
+    ad_all = 466
+
     dirc = str(Path().absolute()) + '/output_' + cohort_name + '/'
-
-    # genes = ['LRRC17', 'TRAF3IP', 'UGT3A1', 'ARHGAP44', 'PRKAG3', 'THG1L', 'GPR37', 'ATP6V0E2', 'C1orf185']
-
-    '''
-    fly_hits_file = dirc + 'hit_genes.txt'
-    df_hits = pd.read_csv(fly_hits_file)
-    genes = df_hits['Gene'].values.tolist()
-    '''
 
     # all 216 genes
     ideal_file = dirc + 'iDEAL_genelist.txt'
@@ -80,19 +83,17 @@ if __name__ == '__main__':
     genes = df_genes['Gene'].values.tolist()
 
     """
-    case_file = dirc + '216_updated/216_mutation_count_APOE3-AD.csv'
-    control_file = dirc + '216_updated/216_mutation_count_APOE3-HC.csv'
-
     case_file = dirc + '216_mutation_count_APOE3-AD.csv'
     control_file = dirc + '216_mutation_count_APOE3-HC.csv'
     """
+
     case_file = dirc + '216_mutation_count_APOE234_AD.csv'
     control_file = dirc + '216_mutation_count_APOE234_HC.csv'
 
     dfCase = pd.read_csv(case_file, sep=',')
-    #dfCase = dfCase[['Gene', 'Sub', 'Action', 'Count', 'Het:Hom']]
+    # dfCase = dfCase[['Gene', 'Sub', 'Action', 'Count', 'Het:Hom']]
     dfControl = pd.read_csv(control_file, sep=',')
-    #dfControl = dfControl[['Gene', 'Sub', 'Action', 'Count', 'Het:Hom']]
+    # dfControl = dfControl[['Gene', 'Sub', 'Action', 'Count', 'Het:Hom']]
 
     df = dfCase.merge(dfControl, on=['Gene', 'Sub', 'Action'], how='outer')
     df = df.fillna(0)
@@ -103,14 +104,7 @@ if __name__ == '__main__':
 
     # df.to_csv(dirc + '216_all_mutation_count_APOE3_withEA.csv', sep=',', index=False)
     df.to_csv(dirc + '216_all_mutation_count_all_except_APOE24_withEA.csv', sep=',', index=False)
-    # hc_all = 1657   # only 3/3 HC
-    # ad_all = 1346   # only 3/3 AD
-    # hc_all = 287
-    # ad_all = 269
-    hc_all = 482
-    ad_all = 466
 
-    # outputFile = dirc + '216_updated/69hits_all_mutation_count_APOE3_withEA_OR_CI_clean.csv'
     # outputFile = dirc + '216genes_mutation_count_APOE3_withEA_OR_CI_clean2.csv'
     outputFile = dirc + '216genes_mutation_count_all_except_APOE24_withEA_OR_CI_clean2.csv'
     with open(outputFile, 'w') as f:
