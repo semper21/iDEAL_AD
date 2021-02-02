@@ -15,16 +15,20 @@ Alzheimer's Disease. Alzheimer's & Dementia. 2020](https://alz-journals.onlineli
 
 
 ---
-## Installation
+## Setup
+
+### Requirements
+- Linux or OSx
+- Anaconda
+- Python 3.6+
 
 ### Download code
 ```
 git clone https://github.com/semper21/iDEAL_AD.git 
 ```
+
 ### Install environment
-
-Requirement = python 3.6
-
 ```
 conda env create -f environment.yml
 ```
+
