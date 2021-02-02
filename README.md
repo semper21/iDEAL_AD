@@ -2,7 +2,6 @@
 
 
 ## Project Description
-### Introduction
 Despite considerable insight from GWAS and sequencing studies, much of late-onset Alzheimer’s Disease (LOAD) heritability remains unexplained leading to uncertain risk stratification of patients and no available disease-modifying therapies. To date, the APOE gene remains the strongest genetic risk factor for LOAD. Carriers of the APOEɛ4 allele are at a greater risk, while the APOEɛ2 allele plays a protective role. However, many APOEɛ4 carriers remain disease-free and some APOEɛ2 carriers develop LOAD.
 
 iDEAL, or imputed Deviation of Evolutionary Action Load, is a novel approach that identifies genes with differential mutational burden between the two paradoxical patient groups through a series of linear regression analyses. 
