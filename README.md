@@ -13,6 +13,7 @@ iDEAL, or imputed Deviation of Evolutionary Action Load, is a novel approach tha
 Harnessing the Paradoxical Phenotypes of APOE2 and APOE4 to Identify Genetic Modifiers in
 Alzheimer's Disease. Alzheimer's & Dementia. 2020](https://alz-journals.onlinelibrary.wiley.com/doi/10.1002/alz.12240)
 
+##Note: The most up-to-date version of this repository is set to private.
 
 ---
 ## Setup
